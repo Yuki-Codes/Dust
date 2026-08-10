@@ -9,24 +9,24 @@ import SwiftUI
 import SwiftData
 
 @main
-struct DustApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+struct DustApp: App
+{
+    var body: some Scene
+    {
+        WindowGroup
+        {
+            MainView()
+                .modelContainer(for: [
+                    Platform.self
+                ]);
         }
-    }()
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
+        
+        Settings
+        {
+            SettingsView()
+                .modelContainer(for: [
+                    Platform.self
+                ]);
         }
-        .modelContainer(sharedModelContainer)
     }
 }
