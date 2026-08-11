@@ -11,6 +11,9 @@ import SwiftData
 @main
 struct DustApp: App
 {
+    @State
+    private var scanner = Scanner();
+    
     var body: some Scene
     {
         WindowGroup
@@ -18,15 +21,29 @@ struct DustApp: App
             MainView()
                 
         }.modelContainer(for: [
-            Platform.self
-        ]);
+            Platform.self,
+        ])
+        .environment(self.scanner)
+        .commands
+        {
+            CommandMenu("Games")
+            {
+                Button("Scan for games", systemImage: "plus.viewfinder", action: Scan);
+            }
+        }
         
         Settings
         {
             SettingsView()
                 .modelContainer(for: [
-                    Platform.self
+                    Platform.self,
                 ]);
         }
     }
+    
+    func Scan()
+    {
+        scanner.BeginScan();
+    }
 }
+

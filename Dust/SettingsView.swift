@@ -23,6 +23,9 @@ struct SettingsView: View
     @Query(sort: \Platform.sortName)
     var platforms: [Platform];
     
+    @AppStorage("sgdbApiKey")
+    var sgdbApiKey: String = "";
+    
     var SelectedPlatform:Platform?
     {
         return platforms.first(where:
@@ -33,27 +36,96 @@ struct SettingsView: View
     
     var body: some View
     {
-        VStack
+        VStack(alignment: .leading)
         {
-            HStack
+            Text("SteamGridDB").font(.title3).frame(alignment: .leading);
+            Text("Enter a Steam Grid Database API Key to automatically fetch cover art and metadata for your games.")
+                .font(.caption)
+                .foregroundStyle(.secondary);
+            
+            Link("Get an API key from the SGDB preferences page.", destination: URL(string: "https://www.steamgriddb.com/profile/preferences/api")!)
+                .font(.caption);
+            Form
             {
-                Picker(selection: $platformId, label: Text("Platform"))
-                {
-                    ForEach(platforms)
-                    { platform in
-                        Text(platform.name).tag(platform.id);
-                    }
-                }
-                .buttonSizing(.flexible)
-                
-                Button(action:AddPlatform)
-                {
-                    Label("Add", systemImage: "plus");
-                }
+                TextField("API Key", text: $sgdbApiKey);
             }
             
-            GroupBox
+            Spacer().frame(height: 32);
+            
+            Text("Platforms").font(.title3);
+            Text("Each platform specifies a directory to search for games.")
+                .font(.caption)
+                .foregroundStyle(.secondary);
+            
+            HStack
             {
+                GroupBox
+                {
+                    List(platforms, selection: $platformId)
+                    { platform in
+                        HStack
+                        {
+                            if (platform.iconUrl != nil)
+                            {
+                                CachedAsyncImage(url: URL(string: platform.iconUrl!))
+                                { phase in
+                                    switch phase
+                                    {
+                                    case .success(let image):
+                                        if colorScheme == ColorScheme.dark
+                                        {
+                                            image.resizable().colorInvert();
+                                        }
+                                        else
+                                        {
+                                            image.resizable();
+                                        }
+                                        
+                                    default:
+                                        ProgressView().scaleEffect(0.5);
+                                    }
+                                }
+                                .frame(width: 14, height: 14)
+                                Text(platform.name);
+                            }
+                            else
+                            {
+                                Text(platform.name).padding(Edge.Set.leading, 30);
+                            }
+                        }
+                    }
+                    .padding(.bottom, 24)
+                    .padding(.top, -4)
+                    .padding(.horizontal, -4)
+                    .listStyle(.plain)
+                    .overlay(alignment: .bottomLeading, content:
+                    {
+                        HStack(spacing: 0)
+                        {
+                            Button(action:AddPlatform)
+                            {
+                                Image(systemName: "plus");
+                            }
+                            .buttonStyle(.borderless)
+                            .frame(width: 22, height: 22);
+                            
+                            Divider().frame(height: 14);
+                            
+                            Button(action:RemovePlatform)
+                            {
+                                Image(systemName: "minus");
+                            }
+                            .buttonStyle(.borderless)
+                            .frame(width: 22, height: 22);
+                        }
+                        .buttonStyle(.borderless)
+                        .frame(width: .infinity)
+                    })
+                }
+                .formStyle(.grouped)
+                .scrollDisabled(true)
+                .frame(maxWidth: 200, maxHeight: 250)
+
                 if (SelectedPlatform == nil)
                 {
                     Text("Select a platform").frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -66,7 +138,7 @@ struct SettingsView: View
                 }
             }
             
-        }.frame(minWidth: 600, minHeight: 400).padding(16)
+        }.frame(minWidth: 450).padding(16)
         
         .onAppear
         {
@@ -82,70 +154,9 @@ struct SettingsView: View
     func AddPlatform()
     {
     }
-}
-
-struct PlatformSettingsView : View
-{
-    @Environment(\.modelContext)
-    private var modelContext;
     
-    @Bindable
-    var platform:Platform;
-    
-    var body: some View
+    func RemovePlatform()
     {
-        Form
-        {
-            TextField("Name", text: $platform.name);
-            TextField("Sorting Name", text: $platform.sortName);
-            //TextField("Icon", text: $platform.iconUrl);
-            
-            Picker("Type", selection: $platform.platformType)
-            {
-                ForEach(Platform.PlatformTypes.allCases)
-                { platformType in
-                    Text(String(describing: platformType))
-                    
-                }
-            }
-            .buttonSizing(.flexible);
-            
-            if (self.platform.platformType == Platform.PlatformTypes.Emulator)
-            {
-                HStack
-                {
-                    TextField("Executable", text: $platform.executablePath)
-                    Button("...")
-                    {
-                        let panel = NSOpenPanel();
-                        panel.allowsMultipleSelection = false;
-                        panel.canChooseDirectories = false;
-                        if panel.runModal() == .OK
-                        {
-                            self.platform.executablePath = panel.url?.absoluteString ?? "";
-                        }
-                    }
-                }
-            }
-            
-            HStack
-            {
-                TextField("Directory", text: $platform.directory)
-                Button("...")
-                {
-                    let panel = NSOpenPanel();
-                    panel.allowsMultipleSelection = false;
-                    panel.canChooseDirectories = true;
-                    panel.canChooseFiles = false;
-                    if panel.runModal() == .OK
-                    {
-                        self.platform.directory = panel.url?.absoluteString ?? "";
-                    }
-                }
-            }
-            
-            TextField("Search Pattern", text: $platform.searchPattern);
-        }
     }
 }
 

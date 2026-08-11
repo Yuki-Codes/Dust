@@ -23,6 +23,17 @@ struct MainView: View
     @Query(sort: \Platform.sortName)
     var platforms: [Platform];
     
+    @Environment(Scanner.self)
+    var scanner:Scanner?;
+    
+    var SelectedPlatform:Platform?
+    {
+        return platforms.first(where:
+                                { platform in
+            platform.id == platformId
+        });
+    }
+    
     var body: some View
     {
         NavigationSplitView
@@ -72,6 +83,29 @@ struct MainView: View
         detail:
         {
             Text(platformId?.uuidString ?? "No Selection");
+        }
+        
+        .overlay(alignment: .bottomTrailing)
+        {
+            GroupBox
+            {
+                HStack
+                {
+                    ProgressView().scaleEffect(0.75);
+                    VStack(alignment: .leading)
+                    {
+                        Text("Scanning for games");
+                        Text(scanner?.status ?? "No Scanner")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(width: 256, alignment: .leading)
+                            .lineLimit(1)
+                    }
+                }
+            }
+            .padding(16)
+            .opacity(scanner?.isScanning != false ? 1.0 : 0)
+            .animation(.easeInOut(duration: 0.5), value: scanner?.isScanning)
         }
     }
     
