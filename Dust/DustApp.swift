@@ -14,15 +14,15 @@ struct DustApp: App
     @State
     private var scanner = Scanner();
     
+    public static var container:ModelContainer?;
+    
     var body: some Scene
     {
         WindowGroup
         {
             MainView()
-                
-        }.modelContainer(for: [
-            Platform.self,
-        ])
+        }
+        .modelContainer(DustApp.container!)
         .environment(self.scanner)
         .commands
         {
@@ -34,10 +34,19 @@ struct DustApp: App
         
         Settings
         {
-            SettingsView()
-                .modelContainer(for: [
-                    Platform.self,
-                ]);
+            SettingsView().modelContainer(DustApp.container!);
+        }
+    }
+    
+    init()
+    {
+        do
+        {
+            DustApp.container = try ModelContainer(for: Platform.self, Game.self);
+        }
+        catch
+        {
+            print("Error: \(error)");
         }
     }
     

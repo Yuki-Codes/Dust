@@ -82,7 +82,7 @@ struct MainView: View
     
         detail:
         {
-            Text(platformId?.uuidString ?? "No Selection");
+            GamesView(platform: self.SelectedPlatform);
         }
         
         .overlay(alignment: .bottomTrailing)

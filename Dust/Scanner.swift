@@ -54,8 +54,7 @@ class Scanner
             print("Connected to SGDB");
         }
         
-        let container = try ModelContainer(for: Platform.self);
-        let platforms:[Platform] = try container.mainContext.fetch(FetchDescriptor<Platform>());
+        let platforms:[Platform] = try DustApp.container!.mainContext.fetch(FetchDescriptor<Platform>());
        
         for platform in platforms
         {
@@ -104,7 +103,16 @@ class Scanner
         
         self.status = "\(platform.name) - \(fileName)";
         
-        // TODO: Do we know this game already
+        // not ideal, but fast enough for now.
+        let games:[Game] = try DustApp.container!.mainContext.fetch(FetchDescriptor<Game>());
+        for game in games
+        {
+            if (game.file == file)
+            {
+                return;
+            }
+        }
+   
         
         if (self.sgdbClient != nil)
         {
@@ -114,6 +122,12 @@ class Scanner
             {
                 let sgdbGame = results![0];
                 print("Found: \"\(sgdbGame.name)\" for \"\(fileName)\"");
+                
+                let game:Game = Game(title:sgdbGame.name, file:file);
+                game.sgdbId = sgdbGame.id;
+                
+                // save
+                DustApp.container!.mainContext.insert(game);
             }
         }
     }
