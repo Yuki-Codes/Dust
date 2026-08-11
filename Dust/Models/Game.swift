@@ -16,6 +16,7 @@ class Game: Identifiable, Hashable
     var sgdbId:Int?;
     var file:String;
     var coverUrl:String?;
+    var platform:Platform?;
     
     init(title:String, file:String)
     {
@@ -37,9 +38,13 @@ extension View
             container = try ModelContainer(for: schema, configurations: config);
             
             let testGame:Game = Game(title: "Doom", file:"test");
-            testGame.sgdbId = 38598;
+            testGame.sgdbId = 2460;
             testGame.coverUrl = "https://cdn2.steamgriddb.com/grid/ef58f7ffe086514aa0164c7fc4f6cea8.png";
             container.mainContext.insert(testGame);
+            
+            let testGame2:Game = Game(title: "Doom 2", file:"test");
+            testGame2.sgdbId = 2492;
+            container.mainContext.insert(testGame2);
         }
         catch
         {

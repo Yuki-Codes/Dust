@@ -105,29 +105,47 @@ class Scanner
         
         // not ideal, but fast enough for now.
         let games:[Game] = try DustApp.container!.mainContext.fetch(FetchDescriptor<Game>());
+        var existingGame:Game? = nil;
         for game in games
         {
             if (game.file == file)
             {
-                return;
+                existingGame = game;
+                break;
             }
         }
-   
         
-        if (self.sgdbClient != nil)
+        if (existingGame == nil)
         {
-            let results = try await self.sgdbClient!.Search(term: fileName);
-            
-            if (results != nil)
+            if (self.sgdbClient != nil)
             {
-                let sgdbGame = results![0];
-                print("Found: \"\(sgdbGame.name)\" for \"\(fileName)\"");
+                let results = try await self.sgdbClient!.Search(term: fileName);
                 
-                let game:Game = Game(title:sgdbGame.name, file:file);
-                game.sgdbId = sgdbGame.id;
-                
-                // save
-                DustApp.container!.mainContext.insert(game);
+                if (results != nil)
+                {
+                    let sgdbGame = results![0];
+                    print("Found: \"\(sgdbGame.name)\" for \"\(fileName)\"");
+                    
+                    existingGame = Game(title:sgdbGame.name, file:file);
+                    existingGame!.sgdbId = sgdbGame.id;
+                    existingGame!.platform = platform;
+                    
+                    // save
+                    DustApp.container!.mainContext.insert(existingGame!);
+                }
+            }
+        }
+        
+        // automatic metadata update
+        if (existingGame != nil && existingGame?.sgdbId != nil && self.sgdbClient != nil)
+        {
+            if (existingGame!.coverUrl == nil)
+            {
+                let results:[SteamGridDbObject]? = try await self.sgdbClient!.GetGrids(gameId: existingGame!.sgdbId!);
+                if (results != nil && !results!.isEmpty)
+                {
+                    existingGame?.coverUrl = results![0].thumb;
+                }
             }
         }
     }

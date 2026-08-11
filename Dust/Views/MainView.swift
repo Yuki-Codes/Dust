@@ -44,9 +44,9 @@ struct MainView: View
                 { platform in
                     HStack
                     {
-                        if (platform.iconUrl != nil)
+                        if (platform.iconUrl != "")
                         {
-                            CachedAsyncImage(url: URL(string: platform.iconUrl!))
+                            CachedAsyncImage(url: URL(string: platform.iconUrl))
                             { phase in
                                 switch phase
                                 {
@@ -113,7 +113,7 @@ struct MainView: View
     {
         if (self.platforms.isEmpty)
         {
-            let defaultPlatform:Platform = Platform(sortName:"Default", name:"Default", iconUrl: nil);
+            let defaultPlatform:Platform = Platform(sortName:"Default", name:"Default", iconUrl: "");
             self.modelContext.insert(defaultPlatform);
         }
         

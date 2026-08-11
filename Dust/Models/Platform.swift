@@ -15,7 +15,7 @@ class Platform: Identifiable, Hashable
 {
     var sortName: String = "";
     var name: String = "";
-    var iconUrl: String? = nil;
+    var iconUrl: String = "";
     var id:UUID = UUID();
     var platformType: PlatformTypes = PlatformTypes.Applications;
     var executablePath: String = "";
@@ -43,7 +43,7 @@ class Platform: Identifiable, Hashable
         }
     }
     
-    init(sortName:String, name: String, iconUrl: String?, id:UUID, platformType:PlatformTypes, executablePath:String, directory:String)
+    init(sortName:String, name: String, iconUrl: String, id:UUID, platformType:PlatformTypes, executablePath:String, directory:String)
     {
         self.sortName = sortName;
         self.name = name;
@@ -54,7 +54,7 @@ class Platform: Identifiable, Hashable
         self.directory = directory;
     }
     
-    init(sortName:String, name: String, iconUrl: String?)
+    init(sortName:String, name: String, iconUrl: String)
     {
         self.sortName = sortName;
         self.name = name;
@@ -76,9 +76,9 @@ extension View
             container = try ModelContainer(for: schema, configurations: config);
             
             container.mainContext.insert(Platform(sortName:"CPS1", name: "PlayStation", iconUrl: "https://api.iconify.design/ri:playstation-fill.svg"));
-            container.mainContext.insert(Platform(sortName:"CPS2", name: "PlayStation 2", iconUrl: "https://api.iconify.design/thesvg:playstation-2.svg"));
-            container.mainContext.insert(Platform(sortName:"CPS3", name: "PlayStation 3", iconUrl: "https://api.iconify.design/thesvg:playstation-3.svg"));
-            container.mainContext.insert(Platform(sortName:"CPS4", name: "PlayStation 4", iconUrl: "https://api.iconify.design/thesvg:playstation-4.svg"));
+            container.mainContext.insert(Platform(sortName:"CPS2", name: "PlayStation 2", iconUrl: "https://api.iconify.design/ri:playstation-fill.svg"));
+            container.mainContext.insert(Platform(sortName:"CPS3", name: "PlayStation 3", iconUrl: "https://api.iconify.design/ri:playstation-fill.svg"));
+            container.mainContext.insert(Platform(sortName:"CPS4", name: "PlayStation 4", iconUrl: "https://api.iconify.design/ri:playstation-fill.svg"));
             container.mainContext.insert(Platform(sortName:"CXB1", name: "XBOX", iconUrl: "https://api.iconify.design/mingcute:xbox-fill.svg" ));
             container.mainContext.insert(Platform(sortName:"CXB2", name: "XBOX 360", iconUrl: "https://api.iconify.design/mingcute:xbox-fill.svg"));
             container.mainContext.insert(Platform(sortName:"AWN", name: "Windows", iconUrl: "https://api.iconify.design/gg:windows.svg"));

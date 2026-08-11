@@ -43,6 +43,11 @@ class SteamGridDbClient
         return try await Get(uri: "search/autocomplete/\(escapedTerm!)");
     }
     
+    func GetGrids(gameId:Int) async throws -> [SteamGridDbObject]?
+    {
+        return try await Get(uri: "grids/game/\(gameId)?nsfw=false&humor=false&epilepsy=false&limit=50");
+    }
+
     private func Get<T:Decodable>(uri:String) async throws -> [T]?
     {
         guard let url = URL(string: "\(self.baseAddress)\(uri)") else
@@ -73,7 +78,6 @@ struct SteamGridDbResponse<T : Decodable> : Decodable
     var errors:[String]?;
 }
 
-// {"id":37452,"name":"Jak and Daxter: The Precursor Legacy","verified":true,"types":[],"release_date":1007510400}
 struct SteamGridDbGame : Decodable
 {
     var id:Int;
@@ -81,4 +85,22 @@ struct SteamGridDbGame : Decodable
     var verified:Bool;
     //var types[]
     var release_date:Int;
+}
+
+struct SteamGridDbObject : Decodable
+{
+    var id:Int;
+    var score:Int;
+    // var style
+    var width:Int;
+    var height:Int;
+    var nsfw:Bool;
+    var humor:Bool;
+    var notes:String?;
+    //var mime;
+    var language:String;
+    var url:String;
+    var thumb:String;
+    var epilepsy:Bool;
+    // var author
 }

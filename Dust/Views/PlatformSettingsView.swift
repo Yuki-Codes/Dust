@@ -24,7 +24,7 @@ struct PlatformSettingsView : View
         {
             TextField("Name", text: $platform.name);
             TextField("Sorting Name", text: $platform.sortName);
-            //TextField("Icon", text: $platform.iconUrl);
+            TextField("Icon", text: $platform.iconUrl);
             
             Picker("Type", selection: $platform.platformType)
             {

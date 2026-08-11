@@ -65,9 +65,9 @@ struct SettingsView: View
                     { platform in
                         HStack
                         {
-                            if (platform.iconUrl != nil)
+                            if (platform.iconUrl != "")
                             {
-                                CachedAsyncImage(url: URL(string: platform.iconUrl!))
+                                CachedAsyncImage(url: URL(string: platform.iconUrl))
                                 { phase in
                                     switch phase
                                     {
