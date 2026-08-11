@@ -24,29 +24,61 @@ class SteamGridDbClient
     {
         self.apiKey = apiKey;
         
-        var config:URLSessionConfiguration = URLSessionConfiguration.default;
-        config.httpAdditionalHeaders = ["Bearer" : apiKey];
+        let config:URLSessionConfiguration = URLSessionConfiguration.default;
+        ////config.httpAdditionalHeaders = ["Bearer" : apiKey];
+        config.httpAdditionalHeaders = ["Authorization": "Bearer \(apiKey)"];
+        
+        
         self.session = URLSession(configuration: config);
     }
     
-    func GetGameByIdAsync(id:Int) async throws
+    func Search(term:String) async throws -> [SteamGridDbGame]?
     {
-        try await Get(uri: "games/id/\(id)");
-    }
-    
-    private func Get(uri:String) async throws
-    {
-        guard let url = URL(string: "\(self.baseAddress)/\(uri)") else
+        let escapedTerm = term.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed);
+        if (escapedTerm == nil)
         {
-            return;
+            return nil;
         }
         
-        let (data, _) = try await self.session.data(from: url)
+        return try await Get(uri: "search/autocomplete/\(escapedTerm!)");
+    }
+    
+    private func Get<T:Decodable>(uri:String) async throws -> [T]?
+    {
+        guard let url = URL(string: "\(self.baseAddress)\(uri)") else
+        {
+            return nil;
+        }
         
-        //let iTunesResult = try JSONDecoder().decode(ITunesResult.self, from: data)
+        let (data, _) = try await self.session.data(from: url);
+        let result = try JSONDecoder().decode(SteamGridDbResponse<T>.self, from: data);
+        if (!result.success)
+        {
+            throw SteamGridDbError(message: result.errors![0]);
+        }
+        
+        return result.data;
     }
 }
 
-extension EnvironmentValues
+struct SteamGridDbError: Error
 {
+    let message: String;
+}
+
+struct SteamGridDbResponse<T : Decodable> : Decodable
+{
+    var success:Bool;
+    var data:[T]?
+    var errors:[String]?;
+}
+
+// {"id":37452,"name":"Jak and Daxter: The Precursor Legacy","verified":true,"types":[],"release_date":1007510400}
+struct SteamGridDbGame : Decodable
+{
+    var id:Int;
+    var name:String;
+    var verified:Bool;
+    //var types[]
+    var release_date:Int;
 }

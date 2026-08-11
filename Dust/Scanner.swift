@@ -13,6 +13,7 @@ class Scanner
 {
     var isScanning:Bool = false;
     var status:String = "Initializing...";
+    var sgdbClient:SteamGridDbClient? = nil;
     
     func BeginScan()
     {
@@ -44,22 +45,31 @@ class Scanner
     
     private func Scan() async throws
     {
+        let storage = UserDefaults();
+        let sgdbApiKey:String? = storage.string(forKey: "sgdbApiKey");
         
+        if (sgdbApiKey != nil)
+        {
+            self.sgdbClient = SteamGridDbClient(apiKey: sgdbApiKey!);
+            print("Connected to SGDB");
+        }
         
-        self.status = "Waiting..."
-        try await Task.sleep(for: .seconds(1));
-        self.status = "Waiting...1"
-        try await Task.sleep(for: .seconds(1));
-        self.status = "Waiting...2"
-        try await Task.sleep(for: .seconds(1));
-        self.status = "Waiting...3"
-        try await Task.sleep(for: .seconds(1));
-        self.status = "Waiting...4"
-        try await Task.sleep(for: .seconds(1));
+        let container = try ModelContainer(for: Platform.self);
+        let platforms:[Platform] = try container.mainContext.fetch(FetchDescriptor<Platform>());
+       
+        for platform in platforms
+        {
+            try await self.Scan(platform: platform);
+        }
+        
+        self.status = "Done";
+        try await Task.sleep(for: .seconds(1))
     }
     
     private func Scan(platform:Platform) async throws
     {
+        self.status = platform.name;
+        
         let url:URL = URL(filePath: platform.directory);
         if (!url.startAccessingSecurityScopedResource())
         {
@@ -76,7 +86,7 @@ class Scanner
             {
                 if (file.contains(pattern))
                 {
-                    await Scan(platform:platform, file:file);
+                    try await Scan(platform:platform, file:file);
                 }
             }
         }
@@ -88,9 +98,24 @@ class Scanner
         url.stopAccessingSecurityScopedResource();
     }
     
-    private func Scan(platform:Platform, file:String) async
+    private func Scan(platform:Platform, file:String) async throws
     {
-        print(file);
+        let fileName = (file as NSString).lastPathComponent
+        
+        self.status = "\(platform.name) - \(fileName)";
+        
+        // TODO: Do we know this game already
+        
+        if (self.sgdbClient != nil)
+        {
+            let results = try await self.sgdbClient!.Search(term: fileName);
+            
+            if (results != nil)
+            {
+                let sgdbGame = results![0];
+                print("Found: \"\(sgdbGame.name)\" for \"\(fileName)\"");
+            }
+        }
     }
 }
 

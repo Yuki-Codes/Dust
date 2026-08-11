@@ -105,7 +105,7 @@ struct MainView: View
             }
             .padding(16)
             .opacity(scanner?.isScanning != false ? 1.0 : 0)
-            .animation(.easeInOut(duration: 0.5), value: scanner?.isScanning)
+            .animation(.easeInOut(duration: 0.25), value: scanner?.isScanning)
         }
     }
     
