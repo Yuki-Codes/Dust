@@ -17,9 +17,12 @@ struct MainView: View
     @Environment(\.colorScheme)
     var colorScheme;
     
+    @Environment(\.modelContext)
+    private var modelContext;
+    
     @Query(sort: \Platform.sortName)
     var platforms: [Platform];
-
+    
     var body: some View
     {
         NavigationSplitView
@@ -60,11 +63,29 @@ struct MainView: View
                     }
                 };
             }
+            .onAppear
+            {
+                self.OnAppear();
+            }
         }
     
         detail:
         {
             Text(platformId?.uuidString ?? "No Selection");
+        }
+    }
+    
+    func OnAppear()
+    {
+        if (self.platforms.isEmpty)
+        {
+            let defaultPlatform:Platform = Platform(sortName:"Default", name:"Default", iconUrl: nil);
+            self.modelContext.insert(defaultPlatform);
+        }
+        
+        if (self.platformId == nil)
+        {
+            self.platformId = self.platforms.first?.id;
         }
     }
 }

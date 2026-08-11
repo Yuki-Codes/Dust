@@ -16,10 +16,10 @@ struct DustApp: App
         WindowGroup
         {
             MainView()
-                .modelContainer(for: [
-                    Platform.self
-                ]);
-        }
+                
+        }.modelContainer(for: [
+            Platform.self
+        ]);
         
         Settings
         {

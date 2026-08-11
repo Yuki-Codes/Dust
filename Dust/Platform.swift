@@ -15,13 +15,41 @@ class Platform: Identifiable, Hashable
     var name: String = "";
     var iconUrl: String? = nil;
     var id:UUID = UUID();
+    var platformType: PlatformTypes = PlatformTypes.Applications;
+    var executablePath: String = "";
+    var directory: String = "";
+    var searchPattern: String = "*.app";
     
-    init(sortName:String, name: String, iconUrl: String?, id:UUID)
+    enum PlatformTypes : Codable, CaseIterable, Identifiable, CustomStringConvertible
+    {
+        case Applications;
+        case Emulator;
+        
+        var id: Self
+        {
+            return self;
+        }
+        
+        var description: String
+        {
+            switch self {
+            case PlatformTypes.Applications:
+                return "Applications"
+            case PlatformTypes.Emulator:
+                return "Emulator"
+            }
+        }
+    }
+    
+    init(sortName:String, name: String, iconUrl: String?, id:UUID, platformType:PlatformTypes, executablePath:String, directory:String)
     {
         self.sortName = sortName;
         self.name = name;
         self.iconUrl = iconUrl;
         self.id = id;
+        self.platformType = platformType;
+        self.executablePath = executablePath;
+        self.directory = directory;
     }
     
     init(sortName:String, name: String, iconUrl: String?)

@@ -17,6 +17,9 @@ struct SettingsView: View
     @Environment(\.colorScheme)
     var colorScheme;
     
+    @Environment(\.modelContext)
+    private var modelContext;
+    
     @Query(sort: \Platform.sortName)
     var platforms: [Platform];
     
@@ -64,9 +67,14 @@ struct SettingsView: View
             }
             
         }.frame(minWidth: 600, minHeight: 400).padding(16)
+        
+        .onAppear
+        {
+            self.OnAppear();
+        }
     }
     
-    init()
+    func OnAppear()
     {
         self.platformId = platforms.first?.id;
     }
@@ -78,6 +86,9 @@ struct SettingsView: View
 
 struct PlatformSettingsView : View
 {
+    @Environment(\.modelContext)
+    private var modelContext;
+    
     @Bindable
     var platform:Platform;
     
@@ -88,8 +99,53 @@ struct PlatformSettingsView : View
             TextField("Name", text: $platform.name);
             TextField("Sorting Name", text: $platform.sortName);
             //TextField("Icon", text: $platform.iconUrl);
-        }
             
+            Picker("Type", selection: $platform.platformType)
+            {
+                ForEach(Platform.PlatformTypes.allCases)
+                { platformType in
+                    Text(String(describing: platformType))
+                    
+                }
+            }
+            .buttonSizing(.flexible);
+            
+            if (self.platform.platformType == Platform.PlatformTypes.Emulator)
+            {
+                HStack
+                {
+                    TextField("Executable", text: $platform.executablePath)
+                    Button("...")
+                    {
+                        let panel = NSOpenPanel();
+                        panel.allowsMultipleSelection = false;
+                        panel.canChooseDirectories = false;
+                        if panel.runModal() == .OK
+                        {
+                            self.platform.executablePath = panel.url?.absoluteString ?? "";
+                        }
+                    }
+                }
+            }
+            
+            HStack
+            {
+                TextField("Directory", text: $platform.directory)
+                Button("...")
+                {
+                    let panel = NSOpenPanel();
+                    panel.allowsMultipleSelection = false;
+                    panel.canChooseDirectories = true;
+                    panel.canChooseFiles = false;
+                    if panel.runModal() == .OK
+                    {
+                        self.platform.directory = panel.url?.absoluteString ?? "";
+                    }
+                }
+            }
+            
+            TextField("Search Pattern", text: $platform.searchPattern);
+        }
     }
 }
 
