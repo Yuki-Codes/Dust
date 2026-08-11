@@ -119,7 +119,6 @@ struct SettingsView: View
                             .frame(width: 22, height: 22);
                         }
                         .buttonStyle(.borderless)
-                        .frame(width: .infinity)
                     })
                 }
                 .formStyle(.grouped)
@@ -153,6 +152,9 @@ struct SettingsView: View
     
     func AddPlatform()
     {
+        let platform:Platform = Platform(sortName:"", name: "New Platform", iconUrl:"");
+        self.modelContext.insert(platform);
+        self.platformId = platform.id;
     }
     
     func RemovePlatform()

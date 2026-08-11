@@ -84,7 +84,7 @@ struct SteamGridDbGame : Decodable
     var name:String;
     var verified:Bool;
     //var types[]
-    var release_date:Int;
+    var release_date:Int?;
 }
 
 struct SteamGridDbObject : Decodable

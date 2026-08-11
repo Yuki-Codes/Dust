@@ -29,7 +29,7 @@ struct MainView: View
     var SelectedPlatform:Platform?
     {
         return platforms.first(where:
-                                { platform in
+        { platform in
             platform.id == platformId
         });
     }
@@ -79,7 +79,7 @@ struct MainView: View
                 self.OnAppear();
             }
         }
-    
+        
         detail:
         {
             GamesView(platform: self.SelectedPlatform);
@@ -108,6 +108,7 @@ struct MainView: View
             .animation(.easeInOut(duration: 0.25), value: scanner?.isScanning)
         }
     }
+
     
     func OnAppear()
     {

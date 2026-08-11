@@ -24,89 +24,90 @@ struct GamesView: View
     
     var body: some View
     {
-        let columns = [
-            GridItem(.fixed(120), spacing: 20),
-            GridItem(.fixed(120), spacing: 20),
-            GridItem(.fixed(120), spacing: 20),
-            GridItem(.fixed(120), spacing: 20)
-        ]
-        
-        LazyVGrid(columns:columns)
+        ScrollView
         {
-            ForEach(self.games)
-            { game in
-                
-                VStack(alignment: .leading)
-                {
-                    Group
+            LazyVGrid(columns: [.init(.adaptive(minimum: 120))])
+            {
+                ForEach(self.games)
+                { game in
+                    
+                    VStack(alignment: .leading)
                     {
-                        if (game.coverUrl != nil)
+                        ZStack
                         {
-                            CachedAsyncImage(url: URL(string: game.coverUrl!))
-                            { phase in
-                                switch phase
-                                {
-                                case .success(let image):
-                                    image.resizable();
-                                default:
-                                    ProgressView().scaleEffect(0.5);
-                                }
-                            }
-                            .aspectRatio(contentMode: .fit)
-                        }
-                        else
-                        {
-                            Rectangle()
-                                .fill(Color.gray)
-                                .opacity(0.2)
-                        }
-                    }
-                    .cornerRadius(10)
-                    .frame(height: 170)
-                    .shadow(radius: 30)
-
-                    VStack(alignment: .leading, spacing: 2)
-                    {
-                        Text(game.title).lineLimit(1);
-                        
-                        if (game.platform != nil)
-                        {
-                            HStack(spacing: 2)
+                            if (game.coverUrl != nil)
                             {
-                                if (game.platform!.iconUrl != "")
-                                {
-                                    CachedAsyncImage(url: URL(string: game.platform!.iconUrl))
-                                    { phase in
-                                        switch phase
-                                        {
-                                        case .success(let image):
-                                            if colorScheme == ColorScheme.dark
-                                            {
-                                                image.resizable().colorInvert();
-                                            }
-                                            else
-                                            {
-                                                image.resizable();
-                                            }
-                                        default:
-                                            ProgressView().scaleEffect(0.5);
-                                        }
-                                    }
-                                    .frame(width:14, height: 14)
-                                }
+                                Rectangle()
+                                    .fill(Color.black);
                                 
-                                Text(game.platform!.name)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary);
+                                CachedAsyncImage(url: URL(string: game.coverUrl!))
+                                { phase in
+                                    switch phase
+                                    {
+                                    case .success(let image):
+                                        image.resizable();
+                                    default:
+                                        ProgressView().scaleEffect(0.5);
+                                    }
+                                }
+                                .aspectRatio(contentMode: .fill)
+                            }
+                            else
+                            {
+                                Rectangle()
+                                    .fill(Color.gray)
+                                    .opacity(0.2)
+                            }
+                        }
+                        .cornerRadius(10)
+                        .frame(width: 90, height: 148)
+                        .shadow(radius: 30)
+                        
+                        VStack(alignment: .leading, spacing: 2)
+                        {
+                            Text(game.title).lineLimit(1);
+                            
+                            if (game.platform != nil)
+                            {
+                                HStack(alignment: .center, spacing: 2)
+                                {
+                                    if (game.platform!.iconUrl != "")
+                                    {
+                                        CachedAsyncImage(url: URL(string: game.platform!.iconUrl))
+                                        { phase in
+                                            switch phase
+                                            {
+                                            case .success(let image):
+                                                if colorScheme == ColorScheme.dark
+                                                {
+                                                    image.resizable().colorInvert();
+                                                }
+                                                else
+                                                {
+                                                    image.resizable();
+                                                }
+                                            default:
+                                                ProgressView().scaleEffect(0.5);
+                                            }
+                                        }
+                                        .frame(width:14, height: 14)
+                                    }
+                                    
+                                    Text(game.platform!.name)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1);
+                                }
                             }
                         }
                     }
+                    .frame(width: 90)
+                    .padding(.bottom, 16)
                 }
-                
-                
             }
         }
-        .frame(idealWidth: 1024, minHeight: 256);
+        .padding(16)
+        .frame(minWidth: 256)
     }
 }
 
