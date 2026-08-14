@@ -1,0 +1,109 @@
+//
+//  GameManager.swift
+//  Dust
+//
+//  Created by Yuki Walsh on 2026-08-14.
+//
+
+import SwiftData
+import SwiftUI
+
+@Observable
+class GameManager
+{
+    var isEditingGame:Bool = false;
+    var editingGame:Game? = nil;
+    
+    var isPlayingGame:Bool = false;
+    var playingGame:Game? = nil;
+    
+    init()
+    {
+    }
+    
+    func Launch(game:Game)
+    {
+        if (game.platform == nil)
+        {
+            return;
+        }
+        
+        var proc:Process? = nil;
+        
+        if (game.platform!.platformType == .Applications)
+        {
+            let path = "\(game.platform!.directory)\(game.file)";
+            proc = Shell.Execute("open -W \(path)");
+        }
+        else if (game.platform!.platformType == .Emulator)
+        {
+            if (game.platform!.executablePath == "")
+            {
+                return;
+            }
+            
+            var args = game.platform!.launchArgs;
+            args = args.replacingOccurrences(of: "{path}", with: "\(game.platform!.directory)\(game.file)");
+            args = args.replacingOccurrences(of: "{file}", with: game.file);
+            args = args.replacingOccurrences(of: "{title}", with: game.title);
+            
+            print(args);
+            
+            proc = Shell.Execute("open -W \(game.platform!.executablePath) --args \(args)");
+        }
+        
+        if (proc != nil)
+        {
+            BeginWatching(game:game, process:proc!);
+        }
+    }
+    
+    func Edit(game:Game)
+    {
+        isEditingGame = true;
+        editingGame = game;
+    }
+    
+    func OpenDir(game:Game)
+    {
+        if (game.platform == nil)
+        {
+            return;
+        }
+        
+        _ = Shell.Execute("open \(game.platform!.directory)");
+    }
+    
+    func Delete(game:Game)
+    {
+    }
+    
+    private func BeginWatching(game:Game, process:Process)
+    {
+        _ = Task
+        {
+            return await self.Watch(game:game, process:process);
+        }
+    }
+    
+    private func Watch(game:Game, process:Process) async
+    {
+        self.playingGame = game;
+        self.isPlayingGame = true;
+        
+        do
+        {
+            while(process.isRunning)
+            {
+                try await Task.sleep(for: .seconds(1));
+            }
+        }
+        catch
+        {
+            print(error);
+        }
+        
+        self.isPlayingGame = false;
+        self.playingGame = nil;
+    }
+}

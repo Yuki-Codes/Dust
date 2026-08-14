@@ -9,7 +9,7 @@ import Foundation;
 
 class Shell
 {
-    static func Execute(_ command: String)
+    static func Execute(_ command: String) -> Process?
     {
         print(command);
         
@@ -18,5 +18,7 @@ class Shell
         task.launchPath = "/bin/zsh";
         task.standardInput = nil;
         task.launch();
+        
+        return task;
     }
 }

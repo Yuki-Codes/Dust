@@ -26,6 +26,9 @@ struct MainView: View
     @Environment(Scanner.self)
     var scanner:Scanner?;
     
+    @Environment(GameManager.self)
+    var gameManager:GameManager;
+    
     var SelectedPlatform:Platform?
     {
         return platforms.first(where:
@@ -36,6 +39,9 @@ struct MainView: View
     
     var body: some View
     {
+        @Bindable
+        var bindableGameManager = gameManager;
+        
         NavigationSplitView
         {
             VStack
@@ -84,6 +90,24 @@ struct MainView: View
             .padding(16)
             .opacity(scanner?.isScanning != false ? 1.0 : 0)
             .animation(.easeInOut(duration: 0.25), value: scanner?.isScanning)
+        }
+        
+        .sheet(isPresented: $bindableGameManager.isEditingGame)
+        {
+            VStack
+            {
+                EditGameView(game: bindableGameManager.editingGame);
+
+                Button("Done")
+                {
+                    gameManager.isEditingGame = false;
+                }
+            }
+        }
+        
+        .sheet(isPresented: $bindableGameManager.isPlayingGame)
+        {
+            PlayingGameView(game: bindableGameManager.playingGame!);
         }
     }
 

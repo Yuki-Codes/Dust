@@ -23,6 +23,9 @@ struct GameCoverView: View
         return (coverWidth / 9) * 14;
     }
     
+    @Environment(GameManager.self)
+    var gameManager:GameManager;
+    
     var body: some View
     {
         ZStack
@@ -35,17 +38,7 @@ struct GameCoverView: View
                 {
                     if (game.coverUrl != nil)
                     {
-                        CachedAsyncImage(url: URL(string: game.coverUrl!))
-                        { phase in
-                            switch phase
-                            {
-                            case .success(let image):
-                                image.resizable();
-                            default:
-                                ProgressView().scaleEffect(0.5);
-                            }
-                        }
-                        .aspectRatio(contentMode: .fit)
+                        UrlImageView(url:game.coverUrl!);
                     }
                     else
                     {
@@ -81,7 +74,11 @@ struct GameCoverView: View
         
         .onHover
         { over in
-            popupOpen = over;
+            
+            if(!gameManager.isEditingGame)
+            {
+                popupOpen = over;
+            }
         }
         
         .popover(isPresented: $popupOpen, arrowEdge: .trailing)
@@ -90,18 +87,8 @@ struct GameCoverView: View
             {
                 if (game.logoUrl != nil)
                 {
-                    CachedAsyncImage(url: URL(string: game.logoUrl!))
-                    { phase in
-                        switch phase
-                        {
-                        case .success(let image):
-                            image.resizable();
-                        default:
-                            ProgressView().scaleEffect(0.5);
-                        }
-                    }
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: 100)
+                    UrlImageView(url: game.logoUrl!)
+                        .frame(height: 100)
                 }
                 else
                 {
@@ -139,7 +126,7 @@ struct GameCoverView: View
             {
                 Button
                 {
-                    Launch();
+                    gameManager.Launch(game: game);
                 }
             label:
                 {
@@ -150,7 +137,7 @@ struct GameCoverView: View
                 
                 Button
                 {
-                    Edit();
+                    gameManager.Edit(game: game);
                 }
             label:
                 {
@@ -159,7 +146,7 @@ struct GameCoverView: View
                 
                 Button
                 {
-                    OpenDir();
+                    gameManager.OpenDir(game: game);
                 }
             label:
                 {
@@ -171,60 +158,12 @@ struct GameCoverView: View
             
             Button(role: .destructive)
             {
-                Delete();
+                gameManager.Delete(game: game);
             }
         label:
             {
                 Label("Delete", systemImage: "trash")
             }
         }
-    }
-    
-    private func Launch()
-    {
-        if (game.platform == nil)
-        {
-            return;
-        }
-        
-        if (game.platform!.platformType == .Applications)
-        {
-            let path = "\(game.platform!.directory)\(game.file)";
-            Shell.Execute("open \(path)");
-        }
-        else if (game.platform!.platformType == .Emulator)
-        {
-            if (game.platform!.executablePath == "")
-            {
-                return;
-            }
-            
-            var args = game.platform!.launchArgs;
-            args = args.replacingOccurrences(of: "{path}", with: "\(game.platform!.directory)\(game.file)");
-            args = args.replacingOccurrences(of: "{file}", with: game.file);
-            args = args.replacingOccurrences(of: "{title}", with: game.title);
-            
-            print(args);
-            
-            Shell.Execute("open \(game.platform!.executablePath) --args \(args)");
-        }
-    }
-    
-    private func Edit()
-    {
-    }
-    
-    private func OpenDir()
-    {
-        if (game.platform == nil)
-        {
-            return;
-        }
-        
-        Shell.Execute("open \(game.platform!.directory)");
-    }
-    
-    private func Delete()
-    {
     }
 }

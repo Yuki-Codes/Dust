@@ -16,22 +16,19 @@ struct GamesView: View
     @Environment(\.modelContext)
     private var modelContext;
     
+    @Environment(GameManager.self)
+    var gameManager:GameManager;
+    
     @Environment(\.colorScheme)
     var colorScheme;
     
     @Query(sort: \Game.title)
     var games: [Game];
     
-    @State var hover: Game? = nil;
-    @State var background:String = "";
-    @State var background2:String = "";
-    @State var nextBackground:String = "";
-    @State var backgroundLoaded:Bool = false;
-    @State var background2Loaded:Bool = false;
+    @State
+    var hover: Game? = nil;
     
     var coverWidth:Float = 128;
-    
-
     
     var body: some View
     {
@@ -40,9 +37,9 @@ struct GamesView: View
             ForEach(self.games)
             { game in
                 
-                if (game.coverUrl != nil)
+                if (game.heroUrl != nil)
                 {
-                    CachedAsyncImage(url: URL(string: game.coverUrl!))
+                    CachedAsyncImage(url: URL(string: game.heroUrl!))
                     { phase in
                         switch phase
                         {
@@ -68,6 +65,13 @@ struct GamesView: View
                         GameCoverView(game:game, coverWidth: coverWidth)
                         .onHover
                         { over in
+                            
+                            if (gameManager.isEditingGame)
+                            {
+                                self.hover = gameManager.editingGame;
+                                return;
+                            }
+                            
                             if (over)
                             {
                                 self.hover = game;

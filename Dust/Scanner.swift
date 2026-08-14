@@ -157,8 +157,16 @@ class Scanner
                 }
             }
             
-            let sgdbGame = try await self.sgdbClient!.GetGame(id: existingGame!.sgdbId);
+            if (existingGame!.heroUrl == nil)
+            {
+                let heroes:[SteamGridDbObject]? = try await self.sgdbClient!.GetHeroes(gameId: existingGame!.sgdbId!);
+                if (heroes != nil && !heroes!.isEmpty)
+                {
+                    existingGame?.heroUrl = heroes![0].thumb;
+                }
+            }
             
+            let sgdbGame = try await self.sgdbClient!.GetGame(id: existingGame!.sgdbId);
             if (existingGame?.releaseYear == nil && sgdbGame!.release_date != nil)
             {
                 existingGame?.releaseYear = sgdbGame!.release_date!.formatted(.dateTime.year());

@@ -19,17 +19,28 @@ class Game: Identifiable, Hashable
     var logoUrl:String?;
     var releaseYear:String?;
     var platform:Platform?;
+    var heroUrl:String?;
     
     init(title:String, file:String)
     {
         self.title = title;
         self.file = file;
     }
+    
+    public static func TestGame(index:Int = 0) -> Game
+    {
+        let testGame:Game = Game(title: "Doom \(index)", file:"test");
+        testGame.sgdbId = 2460;
+        testGame.coverUrl = "https://cdn2.steamgriddb.com/grid/ef58f7ffe086514aa0164c7fc4f6cea8.png";
+        testGame.logoUrl = "https://cdn2.steamgriddb.com/logo_thumb/6a3b6ffa5dbf8a5abcad2135e5bc77d9.png";
+        testGame.heroUrl = "https://cdn2.steamgriddb.com/hero_thumb/442465f5282183631234848d916ce365.jpg";
+        return testGame;
+    }
 }
 
 extension View
 {
-    func withTestGames() -> any View
+    func withTestGames(count:Int = 10) -> any View
     {
         let container: ModelContainer;
         let config = ModelConfiguration(isStoredInMemoryOnly: true);
@@ -39,20 +50,11 @@ extension View
         {
             container = try ModelContainer(for: schema, configurations: config);
             
-            let testGame:Game = Game(title: "Doom", file:"test");
-            testGame.sgdbId = 2460;
-            testGame.coverUrl = "https://cdn2.steamgriddb.com/grid/ef58f7ffe086514aa0164c7fc4f6cea8.png";
-            container.mainContext.insert(testGame);
-            
-            let testGame2:Game = Game(title: "Doom 2", file:"test");
-            testGame2.sgdbId = 2492;
-            testGame2.coverUrl = "https://cdn2.steamgriddb.com/thumb/87c127859fc39bd758773fbb1ea3012d.jpg";
-            container.mainContext.insert(testGame2);
-            
-            let testGame3:Game = Game(title: "Doom 3", file:"test");
-            testGame3.sgdbId = 30014;
-            testGame3.coverUrl = "https://cdn2.steamgriddb.com/thumb/5ebbbe6623e9eff1ecee45c4b5fd6689.jpg";
-            container.mainContext.insert(testGame3);
+            for i in stride(from: 0, to: count, by: 1)
+            {
+                container.mainContext.insert(Game.TestGame(index:i));
+            }
+         
         }
         catch
         {

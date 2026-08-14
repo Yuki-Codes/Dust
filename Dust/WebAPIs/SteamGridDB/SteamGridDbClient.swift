@@ -57,6 +57,11 @@ class SteamGridDbClient
     {
         return try await Get(uri: "logos/game/\(gameId)?nsfw=false&humor=false&epilepsy=false&limit=50");
     }
+    
+    func GetHeroes(gameId:Int) async throws -> [SteamGridDbObject]?
+    {
+        return try await Get(uri: "heroes/game/\(gameId)?nsfw=false&humor=false&epilepsy=false&limit=50");
+    }
 
     private func Get<T:Decodable>(uri:String) async throws -> T?
     {
@@ -67,7 +72,7 @@ class SteamGridDbClient
         
         let (data, _) = try await self.session.data(from: url);
         
-        var decoder = JSONDecoder();
+        let decoder = JSONDecoder();
         decoder.dateDecodingStrategy = .secondsSince1970;
         
         let result = try decoder.decode(SteamGridDbResponse<T>.self, from: data);
