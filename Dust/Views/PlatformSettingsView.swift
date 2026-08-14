@@ -18,6 +18,9 @@ struct PlatformSettingsView : View
     @Bindable
     var platform:Platform;
     
+    @State
+    var argsHelpPopupOpen:Bool = false;
+    
     var body: some View
     {
         Form
@@ -53,6 +56,30 @@ struct PlatformSettingsView : View
                         }
                     }
                 }
+                
+                HStack
+                {
+                    TextField("Arguments", text: $platform.launchArgs);
+                    Image(systemName: "questionmark.circle.fill")
+                    .popover(isPresented: $argsHelpPopupOpen)
+                    {
+                        VStack(alignment: .leading)
+                        {
+                            Text("The arguments to pass to the emulator when launching a game.")
+                                .padding(.bottom, 2);
+                            Text("the following substitutions will be performed:");
+                            Text("{path} will be replaced with the absolute path to the file.");
+                            Text("{file} will be replaced with the name of the file, including extension.");
+                            Text("{title} will be replaced with the game title.");
+                        }.padding(12);
+                    }
+                    .onHover
+                    { over in
+                        argsHelpPopupOpen = over;
+                    }
+                    
+                }
+                .padding(.vertical, 1);
             }
             
             HStack

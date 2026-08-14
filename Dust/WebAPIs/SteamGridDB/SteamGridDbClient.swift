@@ -43,12 +43,22 @@ class SteamGridDbClient
         return try await Get(uri: "search/autocomplete/\(escapedTerm!)");
     }
     
+    func GetGame(id:Int?) async throws -> SteamGridDbGame?
+    {
+        return try await Get(uri: "games/id/\(id!)");
+    }
+    
     func GetGrids(gameId:Int) async throws -> [SteamGridDbObject]?
     {
         return try await Get(uri: "grids/game/\(gameId)?nsfw=false&humor=false&epilepsy=false&limit=50");
     }
+    
+    func GetLogos(gameId:Int) async throws -> [SteamGridDbObject]?
+    {
+        return try await Get(uri: "logos/game/\(gameId)?nsfw=false&humor=false&epilepsy=false&limit=50");
+    }
 
-    private func Get<T:Decodable>(uri:String) async throws -> [T]?
+    private func Get<T:Decodable>(uri:String) async throws -> T?
     {
         guard let url = URL(string: "\(self.baseAddress)\(uri)") else
         {
@@ -56,7 +66,11 @@ class SteamGridDbClient
         }
         
         let (data, _) = try await self.session.data(from: url);
-        let result = try JSONDecoder().decode(SteamGridDbResponse<T>.self, from: data);
+        
+        var decoder = JSONDecoder();
+        decoder.dateDecodingStrategy = .secondsSince1970;
+        
+        let result = try decoder.decode(SteamGridDbResponse<T>.self, from: data);
         if (!result.success)
         {
             throw SteamGridDbError(message: result.errors![0]);
@@ -74,7 +88,7 @@ struct SteamGridDbError: Error
 struct SteamGridDbResponse<T : Decodable> : Decodable
 {
     var success:Bool;
-    var data:[T]?
+    var data:T?
     var errors:[String]?;
 }
 
@@ -84,7 +98,7 @@ struct SteamGridDbGame : Decodable
     var name:String;
     var verified:Bool;
     //var types[]
-    var release_date:Int?;
+    var release_date:Date?;
 }
 
 struct SteamGridDbObject : Decodable

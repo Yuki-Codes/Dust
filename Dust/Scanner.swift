@@ -141,11 +141,27 @@ class Scanner
         {
             if (existingGame!.coverUrl == nil)
             {
-                let results:[SteamGridDbObject]? = try await self.sgdbClient!.GetGrids(gameId: existingGame!.sgdbId!);
-                if (results != nil && !results!.isEmpty)
+                let grids:[SteamGridDbObject]? = try await self.sgdbClient!.GetGrids(gameId: existingGame!.sgdbId!);
+                if (grids != nil && !grids!.isEmpty)
                 {
-                    existingGame?.coverUrl = results![0].thumb;
+                    existingGame?.coverUrl = grids![0].thumb;
                 }
+            }
+            
+            if (existingGame!.logoUrl == nil)
+            {
+                let logos:[SteamGridDbObject]? = try await self.sgdbClient!.GetLogos(gameId: existingGame!.sgdbId!);
+                if (logos != nil && !logos!.isEmpty)
+                {
+                    existingGame?.logoUrl = logos![0].thumb;
+                }
+            }
+            
+            let sgdbGame = try await self.sgdbClient!.GetGame(id: existingGame!.sgdbId);
+            
+            if (existingGame?.releaseYear == nil && sgdbGame!.release_date != nil)
+            {
+                existingGame?.releaseYear = sgdbGame!.release_date!.formatted(.dateTime.year());
             }
         }
     }

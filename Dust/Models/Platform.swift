@@ -21,6 +21,7 @@ class Platform: Identifiable, Hashable
     var executablePath: String = "";
     var directory: String = "";
     var searchPattern: String = "[^.]+\\.app";
+    var launchArgs: String = "{path}";
     
     enum PlatformTypes : Codable, CaseIterable, Identifiable, CustomStringConvertible
     {

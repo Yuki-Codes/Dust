@@ -16,6 +16,8 @@ class Game: Identifiable, Hashable
     var sgdbId:Int?;
     var file:String;
     var coverUrl:String?;
+    var logoUrl:String?;
+    var releaseYear:String?;
     var platform:Platform?;
     
     init(title:String, file:String)
