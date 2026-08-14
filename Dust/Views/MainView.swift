@@ -59,7 +59,8 @@ struct MainView: View
         
         detail:
         {
-            GamesView(platform: self.SelectedPlatform);
+            GamesView(platform: self.SelectedPlatform)
+                .ignoresSafeArea(edges: .top)
         }
         
         .overlay(alignment: .bottomTrailing)

@@ -44,7 +44,13 @@ extension View
             
             let testGame2:Game = Game(title: "Doom 2", file:"test");
             testGame2.sgdbId = 2492;
+            testGame2.coverUrl = "https://cdn2.steamgriddb.com/thumb/87c127859fc39bd758773fbb1ea3012d.jpg";
             container.mainContext.insert(testGame2);
+            
+            let testGame3:Game = Game(title: "Doom 3", file:"test");
+            testGame3.sgdbId = 30014;
+            testGame3.coverUrl = "https://cdn2.steamgriddb.com/thumb/5ebbbe6623e9eff1ecee45c4b5fd6689.jpg";
+            container.mainContext.insert(testGame3);
         }
         catch
         {
