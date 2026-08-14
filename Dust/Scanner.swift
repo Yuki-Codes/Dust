@@ -121,7 +121,7 @@ class Scanner
             {
                 let results = try await self.sgdbClient!.Search(term: fileName);
                 
-                if (results != nil)
+                if (results != nil && !results!.isEmpty)
                 {
                     let sgdbGame = results![0];
                     print("Found: \"\(sgdbGame.name)\" for \"\(fileName)\"");

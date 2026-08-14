@@ -65,33 +65,10 @@ struct SettingsView: View
                     { platform in
                         HStack
                         {
-                            if (platform.iconUrl != "")
-                            {
-                                CachedAsyncImage(url: URL(string: platform.iconUrl))
-                                { phase in
-                                    switch phase
-                                    {
-                                    case .success(let image):
-                                        if colorScheme == ColorScheme.dark
-                                        {
-                                            image.resizable().colorInvert();
-                                        }
-                                        else
-                                        {
-                                            image.resizable();
-                                        }
-                                        
-                                    default:
-                                        ProgressView().scaleEffect(0.5);
-                                    }
-                                }
-                                .frame(width: 14, height: 14)
-                                Text(platform.name);
-                            }
-                            else
-                            {
-                                Text(platform.name).padding(Edge.Set.leading, 30);
-                            }
+                            IconView(iconName: platform.iconName)
+                                .frame(width: 14, height: 14);
+                                
+                            Text(platform.name);
                         }
                     }
                     .padding(.bottom, 24)
@@ -152,7 +129,7 @@ struct SettingsView: View
     
     func AddPlatform()
     {
-        let platform:Platform = Platform(sortName:"", name: "New Platform", iconUrl:"");
+        let platform:Platform = Platform(sortName:"", name: "New Platform", iconName: "line-md:question");
         self.modelContext.insert(platform);
         self.platformId = platform.id;
     }

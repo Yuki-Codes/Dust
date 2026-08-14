@@ -24,7 +24,8 @@ struct PlatformSettingsView : View
         {
             TextField("Name", text: $platform.name);
             TextField("Sorting Name", text: $platform.sortName);
-            TextField("Icon", text: $platform.iconUrl);
+            
+            IconSelectorView(iconName: $platform.iconName);
             
             Picker("Type", selection: $platform.platformType)
             {
@@ -77,7 +78,7 @@ struct PlatformSettingsView : View
 
 #Preview
 {
-    var testPlatform = Platform(sortName: "A", name: "MacOS", iconUrl: "https://api.iconify.design/wpf:mac-os.svg");
+    let testPlatform = Platform(sortName: "A", name: "MacOS", iconName: "wpf:mac-os");
     PlatformSettingsView(platform: testPlatform)
         .frame(minWidth: 300, minHeight: 250)
         .padding(16);

@@ -44,33 +44,10 @@ struct MainView: View
                 { platform in
                     HStack
                     {
-                        if (platform.iconUrl != "")
-                        {
-                            CachedAsyncImage(url: URL(string: platform.iconUrl))
-                            { phase in
-                                switch phase
-                                {
-                                case .success(let image):
-                                    if colorScheme == ColorScheme.dark
-                                    {
-                                        image.resizable().colorInvert();
-                                    }
-                                    else
-                                    {
-                                        image.resizable();
-                                    }
-                                    
-                                default:
-                                    ProgressView().scaleEffect(0.5);
-                                }
-                            }
-                            .frame(width: 20, height: 20)
-                            Text(platform.name);
-                        }
-                        else
-                        {
-                            Text(platform.name).padding(Edge.Set.leading, 30);
-                        }
+                        IconView(iconName: platform.iconName)
+                            .frame(width: 20, height: 20);
+                        Text(platform.name);
+
                     }
                 };
             }
@@ -114,7 +91,7 @@ struct MainView: View
     {
         if (self.platforms.isEmpty)
         {
-            let defaultPlatform:Platform = Platform(sortName:"Default", name:"Default", iconUrl: "");
+            let defaultPlatform:Platform = Platform(sortName:"Default", name:"Default", iconName: "line-md:question");
             self.modelContext.insert(defaultPlatform);
         }
         

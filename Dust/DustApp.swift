@@ -16,6 +16,8 @@ struct DustApp: App
     
     public static var container:ModelContainer?;
     
+    public static var iconify:IconifyClient? = nil;
+    
     var body: some Scene
     {
         WindowGroup
@@ -43,6 +45,7 @@ struct DustApp: App
         do
         {
             DustApp.container = try ModelContainer(for: Platform.self, Game.self);
+            DustApp.iconify = IconifyClient();
         }
         catch
         {

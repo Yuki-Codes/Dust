@@ -22,11 +22,18 @@ struct GamesView: View
     @Query(sort: \Game.title)
     var games: [Game];
     
+    var coverWidth:Float = 128;
+    
+    var coverHeight:Float
+    {
+        return (coverWidth / 9) * 14;
+    }
+    
     var body: some View
     {
         ScrollView
         {
-            LazyVGrid(columns: [.init(.adaptive(minimum: 120))])
+            LazyVGrid(columns: [.init(.adaptive(minimum: CGFloat(coverWidth + 16)))])
             {
                 ForEach(self.games)
                 { game in
@@ -59,8 +66,8 @@ struct GamesView: View
                                     .opacity(0.2)
                             }
                         }
-                        .cornerRadius(10)
-                        .frame(width: 90, height: 148)
+                        .cornerRadius(6)
+                        .frame(width: CGFloat(coverWidth), height: CGFloat(coverHeight))
                         .shadow(radius: 30)
                         
                         VStack(alignment: .leading, spacing: 2)
@@ -71,27 +78,8 @@ struct GamesView: View
                             {
                                 HStack(alignment: .center, spacing: 2)
                                 {
-                                    if (game.platform!.iconUrl != "")
-                                    {
-                                        CachedAsyncImage(url: URL(string: game.platform!.iconUrl))
-                                        { phase in
-                                            switch phase
-                                            {
-                                            case .success(let image):
-                                                if colorScheme == ColorScheme.dark
-                                                {
-                                                    image.resizable().colorInvert();
-                                                }
-                                                else
-                                                {
-                                                    image.resizable();
-                                                }
-                                            default:
-                                                ProgressView().scaleEffect(0.5);
-                                            }
-                                        }
+                                   IconView(iconName: game.platform!.iconName)
                                         .frame(width:14, height: 14)
-                                    }
                                     
                                     Text(game.platform!.name)
                                         .font(.caption)
@@ -101,7 +89,7 @@ struct GamesView: View
                             }
                         }
                     }
-                    .frame(width: 90)
+                    .frame(width: CGFloat(coverWidth))
                     .padding(.bottom, 16)
                 }
             }
