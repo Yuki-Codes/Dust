@@ -96,7 +96,7 @@ struct MainView: View
         {
             VStack
             {
-                EditGameView(game: bindableGameManager.editingGame);
+                EditGameView(game: bindableGameManager.editingGame!);
 
                 Button("Done")
                 {

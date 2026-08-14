@@ -128,7 +128,7 @@ struct GameCoverView: View
                 {
                     gameManager.Launch(game: game);
                 }
-            label:
+                label:
                 {
                     Label("Play", systemImage: "play")
                 }
@@ -139,7 +139,7 @@ struct GameCoverView: View
                 {
                     gameManager.Edit(game: game);
                 }
-            label:
+                label:
                 {
                     Label("Edit", systemImage: "rectangle.and.pencil.and.ellipsis")
                 }
@@ -148,7 +148,7 @@ struct GameCoverView: View
                 {
                     gameManager.OpenDir(game: game);
                 }
-            label:
+                label:
                 {
                     Label("Open Location", systemImage: "folder")
                 }
@@ -156,13 +156,27 @@ struct GameCoverView: View
                 Divider();
             }
             
-            Button(role: .destructive)
+            if (!game.hidden)
             {
-                gameManager.Delete(game: game);
+                Button()
+                {
+                    gameManager.Hide(game: game);
+                }
+                label:
+                {
+                    Label("Delete", systemImage: "trash")
+                }
             }
-        label:
+            else
             {
-                Label("Delete", systemImage: "trash")
+                Button()
+                {
+                    gameManager.UnHide(game: game);
+                }
+                label:
+                {
+                    Label("Put Back", systemImage: "trash.slash")
+                }
             }
         }
     }

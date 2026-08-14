@@ -11,20 +11,48 @@ import SwiftUI
 
 struct EditGameView: View
 {
-    var game:Game?;
+    @State
+    var game:Game;
+    
+    @Environment(Scanner.self)
+    var scanner:Scanner?;
     
     var body: some View
     {
         Form
         {
-            Text("Hello World");
+            Text(game.file)
+                .font(.caption);
+            
+            TextField("Custom Launch Args", text: $game.customLaunch ?? "");
+            
+            HStack
+            {
+                TextField("SGDB Id", value: $game.sgdbId, formatter: NumberFormatter());
+                Button("Find Title")
+                {
+                }
+            }
+            
+            Button("Fetch data from SGDB")
+            {
+                scanner!.BeginGetMetadata(game: game, force: true);
+            }
+            
+            if (self.scanner!.isScanning)
+            {
+                ProgressView();
+            }
+            else
+            {
+                TextField("Title", text: $game.title);
+            }
         }
     }
 }
 
 #Preview
 {
-    let testGame:Game = Game(title: "Doom", file:"test");
-    EditGameView(game: testGame)
+    EditGameView(game: Game.TestGame())
         .padding(12)
 }

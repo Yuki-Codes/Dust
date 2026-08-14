@@ -15,6 +15,18 @@ class Scanner
     var status:String = "Initializing...";
     var sgdbClient:SteamGridDbClient? = nil;
     
+    init()
+    {
+        let storage = UserDefaults();
+        let sgdbApiKey:String? = storage.string(forKey: "sgdbApiKey");
+        
+        if (sgdbApiKey != nil)
+        {
+            self.sgdbClient = SteamGridDbClient(apiKey: sgdbApiKey!);
+            print("Connected to SGDB");
+        }
+    }
+    
     func BeginScan()
     {
         _ = Task
@@ -43,15 +55,39 @@ class Scanner
         self.isScanning = false;
     }
     
+    func BeginGetMetadata(game:Game, force:Bool)
+    {
+        _ = Task
+        {
+            return await self.GetMetadataSafe(game:game, force:force);
+        }
+    }
+    
+    private func GetMetadataSafe(game:Game, force:Bool) async
+    {
+        if (self.isScanning)
+        {
+            return;
+        }
+        
+        self.isScanning = true;
+        do
+        {
+            try await self.GetMetadata(game: game, force: force);
+        }
+        catch
+        {
+            print(error);
+        }
+        
+        self.isScanning = false;
+    }
+    
     private func Scan() async throws
     {
-        let storage = UserDefaults();
-        let sgdbApiKey:String? = storage.string(forKey: "sgdbApiKey");
-        
-        if (sgdbApiKey != nil)
+        if (self.sgdbClient == nil)
         {
-            self.sgdbClient = SteamGridDbClient(apiKey: sgdbApiKey!);
-            print("Connected to SGDB");
+            return;
         }
         
         let platforms:[Platform] = try DustApp.container!.mainContext.fetch(FetchDescriptor<Platform>());
@@ -69,6 +105,8 @@ class Scanner
     {
         self.status = platform.name;
         
+        print(platform.name);
+        
         let url:URL = URL(filePath: platform.directory);
         if (!url.startAccessingSecurityScopedResource())
         {
@@ -78,16 +116,7 @@ class Scanner
         
         do
         {
-            let files:[String] = try FileManager.default.contentsOfDirectory(atPath: platform.directory);
-            let pattern = try Regex(platform.searchPattern);
-            
-            for file in files
-            {
-                if (file.contains(pattern))
-                {
-                    try await Scan(platform:platform, file:file);
-                }
-            }
+            try await Scan(platform: platform, dir:platform.directory);
         }
         catch
         {
@@ -95,6 +124,29 @@ class Scanner
         }
         
         url.stopAccessingSecurityScopedResource();
+    }
+    
+    private func Scan(platform:Platform, dir:String) async throws
+    {
+        let files:[String] = try FileManager.default.contentsOfDirectory(atPath: dir);
+        let pattern = try Regex(platform.searchPattern);
+        
+        for file in files
+        {
+            let path:String = dir.appending(file);
+            
+            var isDir: ObjCBool = false;
+            FileManager.default.fileExists(atPath: path, isDirectory: &isDir);
+            
+            if (file.contains(pattern))
+            {
+                try await Scan(platform:platform, file:file);
+            }
+            else if(isDir.boolValue)
+            {
+                try await Scan(platform:platform, dir: path);
+            }
+        }
     }
     
     private func Scan(platform:Platform, file:String) async throws
@@ -115,61 +167,91 @@ class Scanner
             }
         }
         
-        if (existingGame == nil)
+        // Try get SGDB game
+        if (existingGame == nil && self.sgdbClient != nil)
         {
-            if (self.sgdbClient != nil)
+            let results = try await self.sgdbClient!.Search(term: fileName);
+            
+            if (results != nil && !results!.isEmpty)
             {
-                let results = try await self.sgdbClient!.Search(term: fileName);
+                let sgdbGame = results![0];
+                print("Found: \"\(sgdbGame.name)\" for \"\(fileName)\"");
                 
-                if (results != nil && !results!.isEmpty)
-                {
-                    let sgdbGame = results![0];
-                    print("Found: \"\(sgdbGame.name)\" for \"\(fileName)\"");
-                    
-                    existingGame = Game(title:sgdbGame.name, file:file);
-                    existingGame!.sgdbId = sgdbGame.id;
-                    existingGame!.platform = platform;
-                    
-                    // save
-                    DustApp.container!.mainContext.insert(existingGame!);
-                }
+                existingGame = Game(title:sgdbGame.name, file:file);
+                existingGame!.sgdbId = sgdbGame.id;
+                existingGame!.platform = platform;
+                
+                // save
+                DustApp.container!.mainContext.insert(existingGame!);
             }
         }
         
-        // automatic metadata update
-        if (existingGame != nil && existingGame?.sgdbId != nil && self.sgdbClient != nil)
+        // fallback to direct game
+        if (existingGame == nil)
         {
-            if (existingGame!.coverUrl == nil)
+            existingGame = Game(title:fileName, file:file);
+            existingGame!.platform = platform;
+        }
+        
+        // automatic metadata update
+        if (existingGame != nil)
+        {
+            try await GetMetadata(game:existingGame!, force:false);
+        }
+    }
+    
+    private func GetMetadata(game:Game, force:Bool) async throws
+    {
+        if (self.sgdbClient == nil)
+        {
+            return;
+        }
+        
+        if (game.sgdbId == nil)
+        {
+            return;
+        }
+        
+        let sgdbGame = try await self.sgdbClient!.GetGame(id: game.sgdbId);
+        if (sgdbGame == nil)
+        {
+            return;
+        }
+        
+        if (force)
+        {
+            game.title = sgdbGame!.name;
+        }
+        
+        if (sgdbGame!.release_date != nil && (force || game.releaseYear == nil))
+        {
+            game.releaseYear = sgdbGame!.release_date!.formatted(.dateTime.year());
+        }
+        
+        if (force || game.coverUrl == nil)
+        {
+            let grids:[SteamGridDbObject]? = try await self.sgdbClient!.GetGrids(gameId: game.sgdbId!);
+            if (grids != nil && !grids!.isEmpty)
             {
-                let grids:[SteamGridDbObject]? = try await self.sgdbClient!.GetGrids(gameId: existingGame!.sgdbId!);
-                if (grids != nil && !grids!.isEmpty)
-                {
-                    existingGame?.coverUrl = grids![0].thumb;
-                }
+                game.coverUrl = grids![0].thumb;
             }
-            
-            if (existingGame!.logoUrl == nil)
+        }
+        
+        if (force || game.logoUrl == nil)
+        {
+            let logos:[SteamGridDbObject]? = try await self.sgdbClient!.GetLogos(gameId: game.sgdbId!);
+            if (logos != nil && !logos!.isEmpty)
             {
-                let logos:[SteamGridDbObject]? = try await self.sgdbClient!.GetLogos(gameId: existingGame!.sgdbId!);
-                if (logos != nil && !logos!.isEmpty)
-                {
-                    existingGame?.logoUrl = logos![0].thumb;
-                }
+                game.logoUrl = logos![0].thumb;
             }
-            
-            if (existingGame!.heroUrl == nil)
+        }
+        
+        if (force || game.heroUrl == nil)
+        {
+            let heroes:[SteamGridDbObject]? = try await self.sgdbClient!.GetHeroes(gameId: game.sgdbId!);
+            if (heroes != nil && !heroes!.isEmpty)
             {
-                let heroes:[SteamGridDbObject]? = try await self.sgdbClient!.GetHeroes(gameId: existingGame!.sgdbId!);
-                if (heroes != nil && !heroes!.isEmpty)
-                {
-                    existingGame?.heroUrl = heroes![0].thumb;
-                }
-            }
-            
-            let sgdbGame = try await self.sgdbClient!.GetGame(id: existingGame!.sgdbId);
-            if (existingGame?.releaseYear == nil && sgdbGame!.release_date != nil)
-            {
-                existingGame?.releaseYear = sgdbGame!.release_date!.formatted(.dateTime.year());
+                game.heroUrl = heroes![0].thumb;
             }
         }
     }

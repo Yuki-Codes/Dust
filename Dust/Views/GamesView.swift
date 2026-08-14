@@ -22,7 +22,11 @@ struct GamesView: View
     @Environment(\.colorScheme)
     var colorScheme;
     
-    @Query(sort: \Game.title)
+    @Query(filter: #Predicate<Game>
+        { game in
+            game.hidden == false;
+        },
+        sort: \Game.title)
     var games: [Game];
     
     @State
@@ -36,7 +40,6 @@ struct GamesView: View
         {
             ForEach(self.games)
             { game in
-                
                 if (game.heroUrl != nil)
                 {
                     CachedAsyncImage(url: URL(string: game.heroUrl!))

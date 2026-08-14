@@ -33,7 +33,7 @@ class GameManager
         if (game.platform!.platformType == .Applications)
         {
             let path = "\(game.platform!.directory)\(game.file)";
-            proc = Shell.Execute("open -W \(path)");
+            proc = Shell.Execute("open -n -W \"\(path)\"");
         }
         else if (game.platform!.platformType == .Emulator)
         {
@@ -43,13 +43,17 @@ class GameManager
             }
             
             var args = game.platform!.launchArgs;
-            args = args.replacingOccurrences(of: "{path}", with: "\(game.platform!.directory)\(game.file)");
-            args = args.replacingOccurrences(of: "{file}", with: game.file);
-            args = args.replacingOccurrences(of: "{title}", with: game.title);
             
-            print(args);
+            if (game.customLaunch != nil)
+            {
+                args = game.customLaunch!;
+            }
+                
+            args = args.replacingOccurrences(of: "{path}", with: "\"\(game.platform!.directory)\(game.file)\"");
+            args = args.replacingOccurrences(of: "{file}", with: "\"\(game.file)\"");
+            args = args.replacingOccurrences(of: "{title}", with: "\"\(game.title)\"");
             
-            proc = Shell.Execute("open -W \(game.platform!.executablePath) --args \(args)");
+            proc = Shell.Execute("open -n -W \"\(game.platform!.executablePath)\" --args \(args)");
         }
         
         if (proc != nil)
@@ -74,8 +78,14 @@ class GameManager
         _ = Shell.Execute("open \(game.platform!.directory)");
     }
     
-    func Delete(game:Game)
+    func Hide(game:Game)
     {
+        game.hidden = true;
+    }
+    
+    func UnHide(game:Game)
+    {
+        game.hidden = false;
     }
     
     private func BeginWatching(game:Game, process:Process)

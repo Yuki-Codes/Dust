@@ -20,6 +20,8 @@ class Game: Identifiable, Hashable
     var releaseYear:String?;
     var platform:Platform?;
     var heroUrl:String?;
+    var hidden:Bool = false;
+    var customLaunch:String?;
     
     init(title:String, file:String)
     {
