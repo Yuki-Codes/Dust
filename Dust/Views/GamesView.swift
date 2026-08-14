@@ -66,19 +66,16 @@ struct GamesView: View
                         .onHover
                         { over in
                             
-                            if (gameManager.isEditingGame)
+                            if (!gameManager.isEditingGame && !gameManager.isPlayingGame)
                             {
-                                self.hover = gameManager.editingGame;
-                                return;
-                            }
-                            
-                            if (over)
-                            {
-                                self.hover = game;
-                            }
-                            else if(self.hover == game)
-                            {
-                                self.hover = nil;
+                                if (over)
+                                {
+                                    self.hover = game;
+                                }
+                                else if(self.hover == game)
+                                {
+                                    self.hover = nil;
+                                }
                             }
                         }
                     }

@@ -75,7 +75,7 @@ struct GameCoverView: View
         .onHover
         { over in
             
-            if(!gameManager.isEditingGame)
+            if(!gameManager.isEditingGame && !gameManager.isPlayingGame)
             {
                 popupOpen = over;
             }
