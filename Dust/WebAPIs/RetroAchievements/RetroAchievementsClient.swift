@@ -46,7 +46,8 @@ class RetroAchievementsClient : Observable
             return nil;
         }
         
-        return try await Get(uri: "API_GetUserProfile",
+        return try await Get(
+            uri: "API_GetUserProfile",
             args: [
                 "u": userName!
             ]);
@@ -62,6 +63,57 @@ class RetroAchievementsClient : Observable
         var TotalPoints:Int = 0;
         var TotalSoftcorePoints:Int = 0;
         var TotalTruePoints:Int = 0;
+    }
+    
+    public func GetUserRecentlyPlayedGames(ulid:String) async throws -> [RecentGame]?
+    {
+        return try await Get(
+            uri: "API_GetUserRecentlyPlayedGames",
+            args: [
+                "u": ulid
+            ]);
+    }
+    
+    class RecentGame : Decodable
+    {
+        var GameID:Int = 0;
+        var ConsoleID:Int = 0;
+        var ConsoleName:String = "";
+        var Title:String = "";
+        var AchievementsTotal:Int = 0;
+        var NumPossibleAchievements:Int = 0;
+        var PossibleScore:Int = 0;
+        var NumAchieved:Int = 0;
+        var ScoreAchieved:Int = 0;
+        var NumAchievedHardcore:Int = 0;
+        var ScoreAchievedHardcore:Int = 0;
+    }
+    
+    public func GetGameInfoAndUserProgress(ulid:String, gameId:Int) async throws -> UserGameProgress?
+    {
+        return try await Get(
+            uri: "API_GetGameInfoAndUserProgress",
+            args: [
+                "u": ulid,
+                "g": "\(gameId)",
+            ]);
+    }
+    
+    class UserGameProgress : Decodable
+    {
+        var ID:Int = 0;
+        var Title:String = "";
+        var NumAchievements:Int = 0;
+        var Achievements:Dictionary<String, Achievement>? = nil;
+    }
+    
+    class Achievement : Decodable
+    {
+        var ID:Int = 0;
+        var Title:String = "";
+        var Description:String = "";
+        var DateEarned:Date? = nil;
+        var BadgeName:String? = nil;
     }
     
     public func GetMediaUrl(uri:String) -> String
@@ -91,7 +143,10 @@ class RetroAchievementsClient : Observable
         let (data, _) = try await self.session!.data(from: url);
         
         let decoder = JSONDecoder();
-        decoder.dateDecodingStrategy = .secondsSince1970;
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        decoder.dateDecodingStrategy = .formatted(dateFormatter);
         
         let result = try decoder.decode(T.self, from: data);
         return result;

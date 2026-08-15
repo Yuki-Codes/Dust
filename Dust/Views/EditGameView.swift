@@ -14,6 +14,9 @@ struct EditGameView: View
     @Environment(Scanner.self)
     var scanner:Scanner?;
     
+    @Environment(AchievementsManager.self)
+    var achivementsManager:AchievementsManager?;
+    
     @Environment(SteamGridDbClient.self)
     var sgdb:SteamGridDbClient;
     
@@ -128,9 +131,32 @@ struct EditGameView: View
                     .foregroundStyle(.secondary);
             }
             
-            Spacer();
-            Spacer();
-            Spacer();
+            Spacer().frame(height: 32);
+            
+            Form
+            {
+                HStack
+                {
+                    TextField("retroachievements.org/game/", value: $game.raId, formatter: NumberFormatter());
+                    
+                    Button(action:{
+                        achivementsManager!.BeginUpdateAchievments(game: game);
+                    })
+                    {
+                        Image(systemName: "square.and.arrow.down");
+                    }
+                }
+            }
+            
+            Text("Find this game on Retro Achievements to show achievement progress")
+                .font(.caption)
+                .foregroundStyle(.secondary);
+            
+            Text("There are \(game.achievements.count) achivements for this game")
+                .font(.caption)
+                .foregroundStyle(.secondary);
+            
+            Spacer().frame(height: 32);
             
             HStack
             {

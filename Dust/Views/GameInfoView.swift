@@ -16,6 +16,31 @@ struct GameInfoView: View
     @Environment(GameManager.self)
     var gameManager:GameManager;
     
+    var achievmentCount:Int
+    {
+        return game.achievements.count;
+    }
+    
+    var earnedAchievements:Int
+    {
+        var earnedAchievements:Int = 0;
+        
+        for achievement in game.achievements
+        {
+            if (achievement.earned != nil)
+            {
+                earnedAchievements += 1;
+            }
+        }
+        
+        return earnedAchievements;
+    }
+    
+    var achievementProgress:Float
+    {
+        return Float(self.earnedAchievements) / Float(self.achievmentCount);
+    }
+    
     var body: some View
     {
         VStack
@@ -24,10 +49,15 @@ struct GameInfoView: View
             {
                 UrlImageView(url: game.logoUrl!)
                     .frame(height: 100)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6);
             }
             else
             {
-                Text(game.title).font(.title);
+                Text(game.title)
+                    .font(.title)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6);
             }
             
             HStack
@@ -47,9 +77,104 @@ struct GameInfoView: View
             }
             .padding(.bottom, 16)
             
+            if (self.achievmentCount > 0)
+            {
+                HStack
+                {
+                    Image(systemName: "trophy.fill")
+                        .frame(width: 20, height: 20);
+                    
+                    Text("\(self.earnedAchievements) of \(self.achievmentCount)");
+                    
+                    ProgressView(value: achievementProgress)
+                }
+                .padding(.horizontal, 16);
+                
+                ScrollView
+                {
+                    VStack(alignment: .leading)
+                    {
+                        Rectangle().opacity(0).frame(height: 0);
+                        
+                        ForEach(game.achievements.sorted())
+                        { achievement in
+                            
+                            if (achievement.earned != nil)
+                            {
+                                HStack
+                                {
+                                    if (achievement.imageUrl != nil)
+                                    {
+                                        UrlImageView(url: achievement.imageUrl!)
+                                            .frame(width: 42, height:42);
+                                    }
+                                    
+                                    VStack(alignment: .leading)
+                                    {
+                                        Text(achievement.title)
+                                            .lineLimit(1);
+                                        
+                                        Text(achievement.body ?? "")
+                                            .font(.caption)
+                                            .lineLimit(2)
+                                            .foregroundStyle(.secondary);
+                                        
+                                        Text("Earned \(achievement.earned!.formatted())")
+                                            .font(.caption)
+                                            .lineLimit(1)
+                                            .foregroundStyle(.secondary);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    
+                    Divider()
+                        .padding(.horizontal, 32);
+                    
+                    VStack(alignment: .leading)
+                    {
+                        ForEach(game.achievements.sorted())
+                        { achievement in
+                            
+                            if (achievement.earned == nil)
+                            {
+                                HStack
+                                {
+                                    if (achievement.imageUrl != nil)
+                                    {
+                                        UrlImageView(url: achievement.imageUrl!)
+                                            .frame(width: 32, height:32)
+                                            .blur(radius: 1)
+                                            .opacity(0.75)
+                                    }
+                                    
+                                    VStack(alignment: .leading)
+                                    {
+                                        Text(achievement.title)
+                                            .lineLimit(1)
+                                            .foregroundStyle(.secondary)
+                                        
+                                        Text(achievement.body ?? "")
+                                            .font(.caption)
+                                            .lineLimit(2)
+                                            .foregroundStyle(.tertiary);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        Rectangle().opacity(0).frame(height: 0);
+                    }
+                    .padding(.horizontal, 16);
+                }
+                .frame(maxHeight: 300);
+            }
+            
             HStack
             {
-                Rectangle().opacity(0);
+                Rectangle().opacity(0).frame(height: 2);
                 
                 Button(action:
                 {
@@ -65,8 +190,9 @@ struct GameInfoView: View
                     .padding(.horizontal, 16)
                 }
                 .buttonStyle(.borderedProminent)
-                .padding(6);
+                .padding(16);
             }
         }
+        .frame(width:300)
     }
 }

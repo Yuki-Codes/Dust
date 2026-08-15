@@ -213,56 +213,51 @@ class Scanner
     
     private func GetMetadata(game:Game, force:Bool) async throws
     {
-        if (DustApp.SgdbClient?.connected != true)
+        if (DustApp.RetroAchievementsClient?.connected == true && game.raId != nil)
         {
-            return;
         }
         
-        if (game.sgdbId == nil)
+        if (DustApp.SgdbClient?.connected == true && game.sgdbId != nil)
         {
-            return;
-        }
-        
-        let sgdbGame = try await DustApp.SgdbClient!.GetGame(id: game.sgdbId);
-        if (sgdbGame == nil)
-        {
-            return;
-        }
-        
-        if (force)
-        {
-            game.title = sgdbGame!.name;
-        }
-        
-        if (sgdbGame!.release_date != nil && (force || game.releaseYear == nil))
-        {
-            game.releaseYear = sgdbGame!.release_date!.formatted(.dateTime.year());
-        }
-        
-        if (force || game.coverUrl == nil)
-        {
-            let grids:[SteamGridDbObject]? = try await DustApp.SgdbClient!.GetGrids(gameId: game.sgdbId!);
-            if (grids != nil && !grids!.isEmpty)
+            let sgdbGame = try await DustApp.SgdbClient!.GetGame(id: game.sgdbId);
+            if (sgdbGame != nil)
             {
-                game.coverUrl = grids![0].thumb;
-            }
-        }
-        
-        if (force || game.logoUrl == nil)
-        {
-            let logos:[SteamGridDbObject]? = try await DustApp.SgdbClient!.GetLogos(gameId: game.sgdbId!);
-            if (logos != nil && !logos!.isEmpty)
-            {
-                game.logoUrl = logos![0].thumb;
-            }
-        }
-        
-        if (force || game.heroUrl == nil)
-        {
-            let heroes:[SteamGridDbObject]? = try await DustApp.SgdbClient!.GetHeroes(gameId: game.sgdbId!);
-            if (heroes != nil && !heroes!.isEmpty)
-            {
-                game.heroUrl = heroes![0].thumb;
+                if (force)
+                {
+                    game.title = sgdbGame!.name;
+                }
+                
+                if (sgdbGame!.release_date != nil && (force || game.releaseYear == nil))
+                {
+                    game.releaseYear = sgdbGame!.release_date!.formatted(.dateTime.year());
+                }
+                
+                if (force || game.coverUrl == nil)
+                {
+                    let grids:[SteamGridDbObject]? = try await DustApp.SgdbClient!.GetGrids(gameId: game.sgdbId!);
+                    if (grids != nil && !grids!.isEmpty)
+                    {
+                        game.coverUrl = grids![0].thumb;
+                    }
+                }
+                
+                if (force || game.logoUrl == nil)
+                {
+                    let logos:[SteamGridDbObject]? = try await DustApp.SgdbClient!.GetLogos(gameId: game.sgdbId!);
+                    if (logos != nil && !logos!.isEmpty)
+                    {
+                        game.logoUrl = logos![0].thumb;
+                    }
+                }
+                
+                if (force || game.heroUrl == nil)
+                {
+                    let heroes:[SteamGridDbObject]? = try await DustApp.SgdbClient!.GetHeroes(gameId: game.sgdbId!);
+                    if (heroes != nil && !heroes!.isEmpty)
+                    {
+                        game.heroUrl = heroes![0].thumb;
+                    }
+                }
             }
         }
     }

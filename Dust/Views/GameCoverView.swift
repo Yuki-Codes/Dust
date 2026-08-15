@@ -57,9 +57,7 @@ struct GameCoverView: View
                 
                 .popover(isPresented: $popupOpen, arrowEdge: .trailing)
                 {
-                    GameInfoView(game:game)
-                    .padding(8)
-                    .frame(width:250);
+                    GameInfoView(game:game);
                 }
                 
                 VStack(alignment: .leading, spacing: 2)

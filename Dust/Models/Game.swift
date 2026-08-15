@@ -15,6 +15,7 @@ class Game: Identifiable, Hashable
     var title:String;
     var path:String;
     var sgdbId:Int?;
+    var raId:Int?;
     var coverUrl:String?;
     var logoUrl:String?;
     var releaseYear:String?;
@@ -23,6 +24,8 @@ class Game: Identifiable, Hashable
     var hidden:Bool = false;
     var customLaunch:String?;
     var foundInScan:Bool = false;
+    
+    var achievements:[Achievement] = [];
 
     init(title:String, path:String)
     {
@@ -38,6 +41,40 @@ class Game: Identifiable, Hashable
         testGame.logoUrl = "https://cdn2.steamgriddb.com/logo_thumb/6a3b6ffa5dbf8a5abcad2135e5bc77d9.png";
         testGame.heroUrl = "https://cdn2.steamgriddb.com/hero_thumb/442465f5282183631234848d916ce365.jpg";
         return testGame;
+    }
+    
+    public func GetAchievement(raId:Int) -> Achievement?
+    {
+        for achievement in achievements
+        {
+            if achievement.raId == raId
+            {
+                return achievement;
+            }
+        }
+        
+        return nil;
+    }
+}
+
+@Model
+class Achievement : Comparable
+{
+    var raId:Int? = nil;
+    var title:String = "";
+    var body:String? = nil;
+    var imageUrl:String? = nil;
+    var earned:Date? = nil;
+    var sortOrder:String? = nil;
+    
+    init(raId:Int)
+    {
+        self.raId = raId;
+    }
+    
+    static func < (lhs: Achievement, rhs: Achievement) -> Bool
+    {
+        return lhs.sortOrder ?? "" < rhs.sortOrder ?? "";
     }
 }
 
