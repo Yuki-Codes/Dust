@@ -90,11 +90,27 @@ class Scanner
             return;
         }
         
+        let games:[Game] = try DustApp.container!.mainContext.fetch(FetchDescriptor<Game>());
+        for game in games
+        {
+            game.foundInScan = false;
+        }
+        
         let platforms:[Platform] = try DustApp.container!.mainContext.fetch(FetchDescriptor<Platform>());
        
         for platform in platforms
         {
             try await self.Scan(platform: platform);
+        }
+        
+        // Delete games that are missing.
+        self.status = "Cleaning";
+        for game in games
+        {
+            if (game.foundInScan == false)
+            {
+                DustApp.container!.mainContext.delete(game);
+            }
         }
         
         self.status = "Done";
@@ -133,14 +149,20 @@ class Scanner
         
         for file in files
         {
-            let path:String = dir.appending(file);
+            var path:String = dir;
+            if (!path.hasSuffix("/") && !file.hasPrefix("/"))
+            {
+                path = path.appending("/");
+            }
+            
+            path = path.appending(file);
             
             var isDir: ObjCBool = false;
             FileManager.default.fileExists(atPath: path, isDirectory: &isDir);
             
             if (file.contains(pattern))
             {
-                try await Scan(platform:platform, file:file);
+                try await Scan(platform:platform, path:path);
             }
             else if(isDir.boolValue)
             {
@@ -149,9 +171,9 @@ class Scanner
         }
     }
     
-    private func Scan(platform:Platform, file:String) async throws
+    private func Scan(platform:Platform, path:String) async throws
     {
-        let fileName = (file as NSString).lastPathComponent
+        let fileName = (path as NSString).lastPathComponent;
         
         self.status = "\(platform.name) - \(fileName)";
         
@@ -160,8 +182,9 @@ class Scanner
         var existingGame:Game? = nil;
         for game in games
         {
-            if (game.file == file)
+            if (game.path == path)
             {
+                game.path = path;
                 existingGame = game;
                 break;
             }
@@ -177,7 +200,7 @@ class Scanner
                 let sgdbGame = results![0];
                 print("Found: \"\(sgdbGame.name)\" for \"\(fileName)\"");
                 
-                existingGame = Game(title:sgdbGame.name, file:file);
+                existingGame = Game(title:sgdbGame.name, path:path);
                 existingGame!.sgdbId = sgdbGame.id;
                 existingGame!.platform = platform;
                 
@@ -189,13 +212,14 @@ class Scanner
         // fallback to direct game
         if (existingGame == nil)
         {
-            existingGame = Game(title:fileName, file:file);
+            existingGame = Game(title:fileName, path:path);
             existingGame!.platform = platform;
         }
         
         // automatic metadata update
         if (existingGame != nil)
         {
+            existingGame?.foundInScan = true;
             try await GetMetadata(game:existingGame!, force:false);
         }
     }

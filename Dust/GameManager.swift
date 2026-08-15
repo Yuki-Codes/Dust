@@ -32,8 +32,7 @@ class GameManager
         
         if (game.platform!.platformType == .Applications)
         {
-            let path = "\(game.platform!.directory)\(game.file)";
-            proc = Shell.Execute("open -n -W \"\(path)\"");
+            proc = Shell.Execute("open -n -W \"\(game.path)\"");
         }
         else if (game.platform!.platformType == .Emulator)
         {
@@ -48,9 +47,11 @@ class GameManager
             {
                 args = game.customLaunch!;
             }
+            
+            let fileName = (game.path as NSString).lastPathComponent
                 
-            args = args.replacingOccurrences(of: "{path}", with: "\"\(game.platform!.directory)\(game.file)\"");
-            args = args.replacingOccurrences(of: "{file}", with: "\"\(game.file)\"");
+            args = args.replacingOccurrences(of: "{path}", with: "\"\(game.path)\"");
+            args = args.replacingOccurrences(of: "{file}", with: "\"\(fileName)\"");
             args = args.replacingOccurrences(of: "{title}", with: "\"\(game.title)\"");
             
             proc = Shell.Execute("open -n -W \"\(game.platform!.executablePath)\" --args \(args)");

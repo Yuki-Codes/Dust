@@ -71,21 +71,27 @@ struct MainView: View
         
         .overlay(alignment: .bottomTrailing)
         {
-            GroupBox
+            ZStack
             {
-                HStack
+                ZStack
                 {
-                    ProgressView().scaleEffect(0.75);
-                    VStack(alignment: .leading)
+                    HStack
                     {
-                        Text("Scanning for games");
-                        Text(scanner?.status ?? "No Scanner")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .frame(width: 256, alignment: .leading)
-                            .lineLimit(1)
+                        ProgressView().scaleEffect(0.75);
+                        VStack(alignment: .leading)
+                        {
+                            Text("Scanning for games");
+                            Text(scanner?.status ?? "No Scanner")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 256, alignment: .leading)
+                                .lineLimit(1)
+                        }
                     }
+                    .padding(6)
                 }
+                .background(.thinMaterial)
+                .cornerRadius(6)
             }
             .padding(16)
             .opacity(scanner?.isScanning != false ? 1.0 : 0)

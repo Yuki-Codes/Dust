@@ -13,8 +13,8 @@ import SwiftUI
 class Game: Identifiable, Hashable
 {
     var title:String;
+    var path:String;
     var sgdbId:Int?;
-    var file:String;
     var coverUrl:String?;
     var logoUrl:String?;
     var releaseYear:String?;
@@ -22,16 +22,17 @@ class Game: Identifiable, Hashable
     var heroUrl:String?;
     var hidden:Bool = false;
     var customLaunch:String?;
-    
-    init(title:String, file:String)
+    var foundInScan:Bool = false;
+
+    init(title:String, path:String)
     {
         self.title = title;
-        self.file = file;
+        self.path = path;
     }
     
     public static func TestGame(index:Int = 0) -> Game
     {
-        let testGame:Game = Game(title: "Doom \(index)", file:"test");
+        let testGame:Game = Game(title: "Doom \(index)", path:"test");
         testGame.sgdbId = 2460;
         testGame.coverUrl = "https://cdn2.steamgriddb.com/grid/ef58f7ffe086514aa0164c7fc4f6cea8.png";
         testGame.logoUrl = "https://cdn2.steamgriddb.com/logo_thumb/6a3b6ffa5dbf8a5abcad2135e5bc77d9.png";

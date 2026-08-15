@@ -21,7 +21,7 @@ struct EditGameView: View
     {
         Form
         {
-            Text(game.file)
+            Text(game.path ?? "")
                 .font(.caption);
             
             TextField("Custom Launch Args", text: $game.customLaunch ?? "");
