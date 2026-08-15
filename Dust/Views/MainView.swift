@@ -11,17 +11,11 @@ import SwiftUI
 
 struct MainView: View
 {
-    @State
-    private var platformId: UUID?;
-
     @Environment(\.colorScheme)
     var colorScheme;
     
     @Environment(\.modelContext)
     private var modelContext;
-    
-    @Query(sort: \Platform.sortName)
-    var platforms: [Platform];
     
     @Environment(Scanner.self)
     var scanner:Scanner?;
@@ -29,45 +23,16 @@ struct MainView: View
     @Environment(GameManager.self)
     var gameManager:GameManager;
     
-    var SelectedPlatform:Platform?
-    {
-        return platforms.first(where:
-        { platform in
-            platform.id == platformId
-        });
-    }
+    @State
+    private var search:String = "";
     
     var body: some View
     {
         @Bindable
         var bindableGameManager = gameManager;
         
-        NavigationSplitView
-        {
-            VStack
-            {
-                List(platforms, selection: $platformId)
-                { platform in
-                    HStack
-                    {
-                        IconView(iconName: platform.iconName)
-                            .frame(width: 20, height: 20);
-                        Text(platform.name);
-
-                    }
-                };
-            }
-            .onAppear
-            {
-                self.OnAppear();
-            }
-        }
-        
-        detail:
-        {
-            GamesView(platform: self.SelectedPlatform)
-                .ignoresSafeArea(edges: .top)
-        }
+        GamesView(searchTerm:search)
+            .ignoresSafeArea(edges: .top)
         
         .overlay(alignment: .bottomTrailing)
         {
@@ -103,7 +68,7 @@ struct MainView: View
             VStack
             {
                 EditGameView(game: bindableGameManager.editingGame!);
-
+                
                 Button("Done")
                 {
                     gameManager.isEditingGame = false;
@@ -116,21 +81,17 @@ struct MainView: View
         {
             PlayingGameView(game: bindableGameManager.playingGame!);
         }
-    }
-
-    
-    func OnAppear()
-    {
-        if (self.platforms.isEmpty)
+        
+        .toolbar
         {
-            let defaultPlatform:Platform = Platform(sortName:"Default", name:"Default", iconName: "line-md:question");
-            self.modelContext.insert(defaultPlatform);
+            ToolbarItem
+            {
+                ProfileTagView()
+                    .padding(.horizontal, 16)
+            }
         }
         
-        if (self.platformId == nil)
-        {
-            self.platformId = self.platforms.first?.id;
-        }
+        .searchable(text: $search)
     }
 }
 

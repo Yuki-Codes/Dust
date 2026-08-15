@@ -10,7 +10,7 @@ import CachedAsyncImage
 import SwiftData
 import SwiftUI
 
-struct ProfileView : View
+struct ProfileTagView : View
 {
     @Environment(AchievementsManager.self)
     var achievementsManager:AchievementsManager;
@@ -21,8 +21,10 @@ struct ProfileView : View
         {
             HStack
             {
-                UrlImageView(url:self.achievementsManager.displayPictureIUrl);
-                Text(self.achievementsManager.displayName);
+                UrlImageView(url:self.achievementsManager.displayPictureIUrl ?? "")
+                    .frame(width: 22, height: 22)
+                
+                Text(self.achievementsManager.displayName ?? "");
             }
         }
     }

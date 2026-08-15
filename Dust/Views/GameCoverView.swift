@@ -18,6 +18,9 @@ struct GameCoverView: View
     @State
     var popupOpen:Bool = false;
     
+    @State
+    var hover:Bool = false;
+    
     var coverHeight:Float
     {
         return (coverWidth / 9) * 14;
@@ -42,12 +45,22 @@ struct GameCoverView: View
                     }
                     else
                     {
-                        Rectangle().background(.thinMaterial);
+                        Rectangle().opacity(0).background(.thinMaterial);
                     }
                 }
                 .cornerRadius(6)
                 .frame(width: CGFloat(coverWidth), height: CGFloat(coverHeight))
                 .shadow(radius: 6)
+                .shadow(color: .black.opacity(self.hover || self.popupOpen ? 0.5 : 0), radius: 12)
+                .scaleEffect(self.hover || self.popupOpen ? 1.05 : 1)
+                .animation(.easeInOut(duration: 0.15), value: self.hover)
+                
+                .popover(isPresented: $popupOpen, arrowEdge: .trailing)
+                {
+                    GameInfoView(game:game)
+                    .padding(8)
+                    .frame(width:250);
+                }
                 
                 VStack(alignment: .leading, spacing: 2)
                 {
@@ -77,47 +90,12 @@ struct GameCoverView: View
             
             if(!gameManager.isEditingGame && !gameManager.isPlayingGame)
             {
-                popupOpen = over;
+                self.hover = over;
             }
         }
-        
-        .popover(isPresented: $popupOpen, arrowEdge: .trailing)
+        .onTapGesture
         {
-            VStack
-            {
-                if (game.logoUrl != nil)
-                {
-                    UrlImageView(url: game.logoUrl!)
-                        .frame(height: 100)
-                }
-                else
-                {
-                    Text(game.title).font(.title);
-                }
-                
-                HStack
-                {
-                    if (game.releaseYear != nil)
-                    {
-                        Text(game.releaseYear!);
-                    }
-                    
-                    if(game.platform != nil)
-                    {
-                        IconView(iconName: game.platform!.iconName)
-                            .frame(width:18, height: 18);
-                        
-                        Text(game.platform!.name);
-                    }
-                }
-                /*.padding(.bottom, 16)
-                
-                Text(game.file)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary);*/
-            }
-            .padding(8)
-            .frame(width:300);
+            self.popupOpen = true;
         }
         
         .contextMenu

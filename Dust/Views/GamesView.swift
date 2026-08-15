@@ -11,8 +11,6 @@ import CachedAsyncImage;
 
 struct GamesView: View
 {
-    var platform:Platform?;
-    
     @Environment(\.modelContext)
     private var modelContext;
     
@@ -22,11 +20,7 @@ struct GamesView: View
     @Environment(\.colorScheme)
     var colorScheme;
     
-    @Query(filter: #Predicate<Game>
-        { game in
-            game.hidden == false;
-        },
-        sort: \Game.title)
+    @Query(sort: \Game.title)
     var games: [Game];
     
     @State
@@ -83,17 +77,31 @@ struct GamesView: View
                         }
                     }
                 }
+                .padding(16)
             }
-            .padding(16)
-            .padding(.top, 32)
+            .padding(.top, 48)
             .background(.regularMaterial)
         }
     }
-}
-
-#Preview
-{
-    GamesView()
-        .withTestGames()
-        .frame(width: 350);
+    
+    init(searchTerm:String)
+    {
+        _games = Query(
+            filter: GamesView.GamesPredictate(searchText:searchTerm),
+            sort: \.title
+        )
+    }
+    
+    
+    static func GamesPredictate(
+        searchText: String
+    ) -> Predicate<Game>
+    {
+        return #Predicate<Game>
+        { game in
+            (!game.hidden)
+            &&
+            (searchText == "" || game.title.localizedStandardContains(searchText))
+        }
+    }
 }
