@@ -13,23 +13,26 @@ import SwiftUI;
 // Based on SteamGridDb.NET
 // https://github.com/craftersmine/SteamGridDB.NET/
 
-class SteamGridDbClient
+class SteamGridDbClient : Observable
 {
-    let baseAddress:String = "https://www.steamgriddb.com/api/v2/";
-    var apiKey:String = "";
+    public var connected:Bool = false;
     
-    let session:URLSession;
+    private let baseAddress:String = "https://www.steamgriddb.com/api/v2/";
+    private var apiKey:String? = nil;
+    private var session:URLSession? = nil;
     
-    init(apiKey:String)
+    init()
     {
-        self.apiKey = apiKey;
+        let storage = UserDefaults();
+        self.apiKey = storage.string(forKey: "sgdbApiKey");
         
-        let config:URLSessionConfiguration = URLSessionConfiguration.default;
-        ////config.httpAdditionalHeaders = ["Bearer" : apiKey];
-        config.httpAdditionalHeaders = ["Authorization": "Bearer \(apiKey)"];
-        
-        
-        self.session = URLSession(configuration: config);
+        if (self.apiKey != nil)
+        {
+            let config:URLSessionConfiguration = URLSessionConfiguration.default;
+            config.httpAdditionalHeaders = ["Authorization": "Bearer \(apiKey!)"];
+            self.session = URLSession(configuration: config);
+            self.connected = true;
+        }
     }
     
     func Search(term:String) async throws -> [SteamGridDbGame]?
@@ -65,12 +68,17 @@ class SteamGridDbClient
 
     private func Get<T:Decodable>(uri:String) async throws -> T?
     {
+        if (self.session == nil)
+        {
+            return nil;
+        }
+        
         guard let url = URL(string: "\(self.baseAddress)\(uri)") else
         {
             return nil;
         }
         
-        let (data, _) = try await self.session.data(from: url);
+        let (data, _) = try await self.session!.data(from: url);
         
         let decoder = JSONDecoder();
         decoder.dateDecodingStrategy = .secondsSince1970;
@@ -97,7 +105,7 @@ struct SteamGridDbResponse<T : Decodable> : Decodable
     var errors:[String]?;
 }
 
-struct SteamGridDbGame : Decodable
+struct SteamGridDbGame : Decodable, Hashable, Identifiable
 {
     var id:Int;
     var name:String;
@@ -106,7 +114,7 @@ struct SteamGridDbGame : Decodable
     var release_date:Date?;
 }
 
-struct SteamGridDbObject : Decodable
+struct SteamGridDbObject : Decodable, Hashable
 {
     var id:Int;
     var score:Int;

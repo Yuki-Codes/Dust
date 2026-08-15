@@ -11,42 +11,171 @@ import SwiftUI
 
 struct EditGameView: View
 {
-    @State
-    var game:Game;
-    
     @Environment(Scanner.self)
     var scanner:Scanner?;
     
+    @Environment(SteamGridDbClient.self)
+    var sgdb:SteamGridDbClient;
+    
+    @State
+    var game:Game;
+    
+    @State
+    var searchTerm:String = "";
+    
+    @State
+    private var searchResults: [SteamGridDbGame]?;
+    
+    @State
+    var isPopoverPresented:Bool = false;
+    
+    @State
+    var selectedSgdbGame:Int = 0;
+    
     var body: some View
     {
-        Form
+        VStack(alignment: .leading)
         {
-            Text(game.path ?? "")
-                .font(.caption);
-            
-            TextField("Custom Launch Args", text: $game.customLaunch ?? "");
-            
-            HStack
+            Form
             {
-                TextField("SGDB Id", value: $game.sgdbId, formatter: NumberFormatter());
-                Button("Find Title")
+                HStack
                 {
+                    TextField("steamgriddb.com/game/", value: $game.sgdbId, formatter: NumberFormatter());
+                    
+                    Button(action:
+                    {
+                        self.isPopoverPresented = true;
+                        self.BeginSearch();
+                    })
+                    {
+                        Image(systemName: "magnifyingglass");
+                    }
+                    
+                    Button(action:{
+                        scanner!.BeginGetMetadata(game: game, force: true);
+                    })
+                    {
+                        if (self.scanner!.isScanning)
+                        {
+                            ProgressView().scaleEffect(0.4);
+                        }
+                        else
+                        {
+                            Image(systemName: "square.and.arrow.down");
+                        }
+                    }
+                }
+                .popover(isPresented: $isPopoverPresented)
+                {
+                    VStack
+                    {
+                        TextField("Search", text: $searchTerm)
+                            .onSubmit(BeginSearch);
+                        
+                        Text("Metadata and artwork provided by the Steam Grid Database")
+                            .font(Font.caption)
+                            .opacity(0.5)
+                        
+                        if (self.searchResults != nil)
+                        {
+                            List(searchResults!, selection: $game.sgdbId)
+                            { sgdbGame in
+                                HStack
+                                {
+                                    Text(sgdbGame.name).lineLimit(1);
+                                    
+                                    let releaseYear:String = sgdbGame.release_date?.formatted(.dateTime.year()) ?? "";
+                                    Text(releaseYear)
+                                        .foregroundStyle(.secondary);
+                                }
+                            }
+                            .frame(height: 200)
+                            .listStyle(.plain)
+                        }
+                        else
+                        {
+                            Spacer()
+                                .frame(height: 200)
+                        }
+                    }
+                    .frame(width: 400)
+                    .padding(16);
                 }
             }
             
-            Button("Fetch data from SGDB")
-            {
-                scanner!.BeginGetMetadata(game: game, force: true);
-            }
+            Text("Find this game on the Steam Grid Database to download artwork and metadata.")
+                .font(.caption)
+                .foregroundStyle(.secondary);
             
-            if (self.scanner!.isScanning)
-            {
-                ProgressView();
-            }
-            else
+            Spacer().frame(height: 32);
+            
+            Form
             {
                 TextField("Title", text: $game.title);
+                TextField("Release Year", text: $game.releaseYear ?? "");
+                //Toggle("Hidden from library", isOn: $game.hidden).toggleStyle(.checkbox);
+                
+                HStack
+                {
+                    ArtworkSelectorView(game: $game, type: .Cover);
+                    ArtworkSelectorView(game: $game, type: .Logo);
+                    ArtworkSelectorView(game: $game, type: .Hero);
+                }
+                
+                TextField("Arguments", text: $game.customLaunch ?? "", prompt:Text(game.platform?.launchArgs ?? ""));
+                Text("Override the default launch arguments for this game.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary);
             }
+            
+            Spacer();
+            Spacer();
+            Spacer();
+            
+            HStack
+            {
+                Text("Path: ")
+                    .font(.caption);
+                Text(game.path)
+                    .font(.caption);
+            }
+            
+            if (game.platform?.platformType == .Emulator)
+            {
+                HStack
+                {
+                    Text("Executable: ")
+                        .font(.caption);
+                    
+                    Text(game.platform?.executablePath ?? "")
+                        .font(.caption);
+                }
+            }
+        }
+    }
+    
+    func BeginSearch()
+    {
+        if (self.searchTerm == "")
+        {
+            self.searchTerm = game.title;
+        }
+        
+        _ = Task
+        {
+            return await self.SearchSafe();
+        }
+    }
+    
+    func SearchSafe() async
+    {
+        do
+        {
+            self.searchResults = try await self.sgdb.Search(term: self.searchTerm);
+        }
+        catch
+        {
+            print(error);
         }
     }
 }

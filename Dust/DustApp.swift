@@ -11,15 +11,23 @@ import SwiftData
 @main
 struct DustApp: App
 {
-    @State
-    private var scanner = Scanner();
-    
-    @State
-    private var gameManager = GameManager();
+    @State private var scanner = Dust.Scanner();
+    @State private var gameManager = Dust.GameManager();
+    @State private var sgdbClient:SteamGridDbClient = Dust.SteamGridDbClient();
+    @State private var iconifyClient:IconifyClient = Dust.IconifyClient();
     
     public static var container:ModelContainer?;
+    public static var instance:DustApp?;
     
-    public static var iconify:IconifyClient? = nil;
+    public static var SgdbClient:SteamGridDbClient?
+    {
+        return DustApp.instance?.sgdbClient;
+    }
+    
+    public static var IconifyClient:IconifyClient?
+    {
+        return DustApp.instance?.iconifyClient;
+    }
     
     var body: some Scene
     {
@@ -30,6 +38,8 @@ struct DustApp: App
         .modelContainer(DustApp.container!)
         .environment(self.scanner)
         .environment(self.gameManager)
+        .environment(self.sgdbClient)
+        .environment(self.iconifyClient)
         .commands
         {
             CommandMenu("Games")
@@ -40,16 +50,19 @@ struct DustApp: App
         
         Settings
         {
-            SettingsView().modelContainer(DustApp.container!);
+            SettingsView()
+                .modelContainer(DustApp.container!)
+                .environment(self.iconifyClient);
         }
     }
     
     init()
     {
+        DustApp.instance = self;
+        
         do
         {
             DustApp.container = try ModelContainer(for: Platform.self, Game.self);
-            DustApp.iconify = IconifyClient();
         }
         catch
         {

@@ -15,9 +15,12 @@ struct IconView: View
     @Environment(\.colorScheme)
     var colorScheme;
     
+    @Environment(IconifyClient.self)
+    var iconifyClient:IconifyClient;
+    
     var iconUrl:URL?
     {
-        return DustApp.iconify?.GetIconUrl(name: self.iconName);
+        return iconifyClient.GetIconUrl(name: self.iconName);
     }
     
     var body: some View

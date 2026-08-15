@@ -13,20 +13,7 @@ class Scanner
 {
     var isScanning:Bool = false;
     var status:String = "Initializing...";
-    var sgdbClient:SteamGridDbClient? = nil;
-    
-    init()
-    {
-        let storage = UserDefaults();
-        let sgdbApiKey:String? = storage.string(forKey: "sgdbApiKey");
-        
-        if (sgdbApiKey != nil)
-        {
-            self.sgdbClient = SteamGridDbClient(apiKey: sgdbApiKey!);
-            print("Connected to SGDB");
-        }
-    }
-    
+
     func BeginScan()
     {
         _ = Task
@@ -85,7 +72,7 @@ class Scanner
     
     private func Scan() async throws
     {
-        if (self.sgdbClient == nil)
+        if (DustApp.SgdbClient == nil)
         {
             return;
         }
@@ -191,9 +178,9 @@ class Scanner
         }
         
         // Try get SGDB game
-        if (existingGame == nil && self.sgdbClient != nil)
+        if (existingGame == nil && DustApp.SgdbClient != nil)
         {
-            let results = try await self.sgdbClient!.Search(term: fileName);
+            let results = try await DustApp.SgdbClient!.Search(term: fileName);
             
             if (results != nil && !results!.isEmpty)
             {
@@ -226,7 +213,7 @@ class Scanner
     
     private func GetMetadata(game:Game, force:Bool) async throws
     {
-        if (self.sgdbClient == nil)
+        if (DustApp.SgdbClient?.connected != true)
         {
             return;
         }
@@ -236,7 +223,7 @@ class Scanner
             return;
         }
         
-        let sgdbGame = try await self.sgdbClient!.GetGame(id: game.sgdbId);
+        let sgdbGame = try await DustApp.SgdbClient!.GetGame(id: game.sgdbId);
         if (sgdbGame == nil)
         {
             return;
@@ -254,7 +241,7 @@ class Scanner
         
         if (force || game.coverUrl == nil)
         {
-            let grids:[SteamGridDbObject]? = try await self.sgdbClient!.GetGrids(gameId: game.sgdbId!);
+            let grids:[SteamGridDbObject]? = try await DustApp.SgdbClient!.GetGrids(gameId: game.sgdbId!);
             if (grids != nil && !grids!.isEmpty)
             {
                 game.coverUrl = grids![0].thumb;
@@ -263,7 +250,7 @@ class Scanner
         
         if (force || game.logoUrl == nil)
         {
-            let logos:[SteamGridDbObject]? = try await self.sgdbClient!.GetLogos(gameId: game.sgdbId!);
+            let logos:[SteamGridDbObject]? = try await DustApp.SgdbClient!.GetLogos(gameId: game.sgdbId!);
             if (logos != nil && !logos!.isEmpty)
             {
                 game.logoUrl = logos![0].thumb;
@@ -272,7 +259,7 @@ class Scanner
         
         if (force || game.heroUrl == nil)
         {
-            let heroes:[SteamGridDbObject]? = try await self.sgdbClient!.GetHeroes(gameId: game.sgdbId!);
+            let heroes:[SteamGridDbObject]? = try await DustApp.SgdbClient!.GetHeroes(gameId: game.sgdbId!);
             if (heroes != nil && !heroes!.isEmpty)
             {
                 game.heroUrl = heroes![0].thumb;

@@ -38,7 +38,7 @@ struct SettingsView: View
     {
         VStack(alignment: .leading)
         {
-            Text("SteamGridDB").font(.title3).frame(alignment: .leading);
+            Text("Steam Grid Database").font(.title3).frame(alignment: .leading);
             Text("Enter a Steam Grid Database API Key to automatically fetch cover art and metadata for your games.")
                 .font(.caption)
                 .foregroundStyle(.secondary);

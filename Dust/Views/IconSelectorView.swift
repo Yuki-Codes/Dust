@@ -12,6 +12,9 @@ struct IconSelectorView: View
     @Binding
     var iconName: String;
     
+    @Environment(IconifyClient.self)
+    var iconifyClient:IconifyClient;
+    
     @State
     private var searchTerm: String = "game console";
 
@@ -33,7 +36,7 @@ struct IconSelectorView: View
     {
         do
         {
-            self.searchResults = try await DustApp.iconify?.Search(term: searchTerm);
+            self.searchResults = try await iconifyClient.Search(term: searchTerm);
         }
         catch
         {

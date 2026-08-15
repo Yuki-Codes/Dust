@@ -109,6 +109,7 @@ struct MainView: View
                     gameManager.isEditingGame = false;
                 }
             }
+            .padding(12)
         }
         
         .sheet(isPresented: $bindableGameManager.isPlayingGame)

@@ -10,7 +10,7 @@ import Foundation;
 import SwiftData;
 import SwiftUI;
 
-class IconifyClient
+class IconifyClient : Observable
 {
     let baseAddress:String = "https://api.iconify.design/";
     let session:URLSession;
