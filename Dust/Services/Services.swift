@@ -60,8 +60,14 @@ class Services
     {
         do
         {
-            let configuration = ModelConfiguration(isStoredInMemoryOnly: false, allowsSave: true);
-            self.modelContainer = try ModelContainer(for: Platform.self, Game.self, configurations:configuration);
+            let schema = Schema(Platform.self, Game.self);
+            
+            let fileManager = FileManager.default;
+            let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!;
+            let directoryURL = appSupportURL.appendingPathComponent("Dust");
+            let fileUrl = directoryURL.appendingPathComponent("Dust.store");
+            let configuration = ModelConfiguration("Dust", schema:schema, url: fileUrl);
+            self.modelContainer = try ModelContainer(for: schema, configurations:configuration);
         }
         catch
         {

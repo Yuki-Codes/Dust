@@ -12,11 +12,13 @@ struct IconSelectorView: View
     @Binding
     var iconName: String;
     
+    var fallback: String;
+    
     @Environment(IconifyClient.self)
     var iconifyClient:IconifyClient;
     
     @State
-    private var searchTerm: String = "game console";
+    private var searchTerm: String = "";
 
     @State
     private var searchResults: [String]?;
@@ -36,6 +38,11 @@ struct IconSelectorView: View
     {
         do
         {
+            if (self.searchTerm == "")
+            {
+                self.searchTerm = self.fallback;
+            }
+            
             self.searchResults = try await iconifyClient.Search(term: searchTerm);
         }
         catch

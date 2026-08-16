@@ -48,9 +48,9 @@ struct GameInfoView: View
             if (game.logoUrl != nil)
             {
                 UrlImageView(url: game.logoUrl!)
-                    .frame(height: 100)
+                    .frame(maxHeight: 100)
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 6);
+                    .padding(.top, 16);
             }
             else
             {

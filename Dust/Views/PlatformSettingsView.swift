@@ -27,7 +27,7 @@ struct PlatformSettingsView : View
         {
             TextField("Name", text: $platform.name);
             
-            IconSelectorView(iconName: $platform.iconName);
+            IconSelectorView(iconName: $platform.iconName, fallback: platform.name);
             
             Picker("Type", selection: $platform.platformType)
             {
