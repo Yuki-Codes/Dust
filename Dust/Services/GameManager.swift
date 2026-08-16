@@ -109,7 +109,7 @@ class GameManager
                 try await Task.sleep(for: .seconds(1));
             }
             
-            try await DustApp.AchievementsManager?.UpdateAchievements(game:game);
+            try await Services.AchievementsManager.UpdateAchievements(game:game);
         }
         catch
         {

@@ -110,7 +110,7 @@ struct IconSelectorView: View
 
 #Preview
 {
-    let testPlatform = Platform(sortName: "A", name: "MacOS", iconName: "wpf:mac-os");
+    let testPlatform = Platform(name: "MacOS", iconName: "wpf:mac-os");
     PlatformSettingsView(platform: testPlatform)
         .frame(minWidth: 300, minHeight: 250)
         .padding(16);

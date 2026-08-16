@@ -35,7 +35,7 @@ class AchievementsManager
     {
         do
         {
-            self.raProfile = try await DustApp.RetroAchievementsClient?.GetUserProfile();
+            self.raProfile = try await Services.RetroAchievementsClient.GetUserProfile();
             
             if (self.raProfile != nil)
             {
@@ -44,7 +44,7 @@ class AchievementsManager
                 
                 if (self.raProfile!.UserPic != nil)
                 {
-                    self.displayPictureIUrl = DustApp.RetroAchievementsClient?.GetMediaUrl(uri: self.raProfile!.UserPic!);
+                    self.displayPictureIUrl = Services.RetroAchievementsClient.GetMediaUrl(uri: self.raProfile!.UserPic!);
                 }
             }
         }
@@ -76,7 +76,7 @@ class AchievementsManager
             if (game.raId == nil)
             {
                 // See if this game was just played on RA and save it if so.
-                let recentGames = try await DustApp.RetroAchievementsClient?.GetUserRecentlyPlayedGames(ulid: self.raProfile!.ULID);
+                let recentGames = try await Services.RetroAchievementsClient.GetUserRecentlyPlayedGames(ulid: self.raProfile!.ULID);
                 if (recentGames != nil)
                 {
                     for recentGame in recentGames!
@@ -91,7 +91,7 @@ class AchievementsManager
             
             if (game.raId != nil)
             {
-                let progress = try await DustApp.RetroAchievementsClient?.GetGameInfoAndUserProgress(ulid: self.raProfile!.ULID, gameId: game.raId!);
+                let progress = try await Services.RetroAchievementsClient.GetGameInfoAndUserProgress(ulid: self.raProfile!.ULID, gameId: game.raId!);
                 
                 if (progress != nil)
                 {
@@ -121,7 +121,7 @@ class AchievementsManager
                         if (achievement!.imageUrl == nil && raAchievement.BadgeName != nil)
                         {
                             let badgeUrl:String = "/Badge/\(raAchievement.BadgeName!).png";
-                            achievement!.imageUrl = DustApp.RetroAchievementsClient!.GetMediaUrl(uri: badgeUrl);
+                            achievement!.imageUrl = Services.RetroAchievementsClient.GetMediaUrl(uri: badgeUrl);
                         }
                         
                         if (raAchievement.DateEarned != nil)

@@ -20,7 +20,7 @@ struct SettingsView: View
     @Environment(\.modelContext)
     private var modelContext;
     
-    @Query(sort: \Platform.sortName)
+    @Query
     var platforms: [Platform];
     
     @AppStorage("sgdbApiKey")
@@ -150,7 +150,7 @@ struct SettingsView: View
     
     func AddPlatform()
     {
-        let platform:Platform = Platform(sortName:"", name: "New Platform", iconName: "line-md:question");
+        let platform:Platform = Platform(name: "New Platform", iconName: "line-md:question");
         self.modelContext.insert(platform);
         self.platformId = platform.id;
     }

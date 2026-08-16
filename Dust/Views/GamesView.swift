@@ -20,7 +20,7 @@ struct GamesView: View
     @Environment(\.colorScheme)
     var colorScheme;
     
-    @Query(sort: \Game.title)
+    @Query
     var games: [Game];
     
     @State
@@ -57,7 +57,7 @@ struct GamesView: View
             {
                 LazyVGrid(columns: [.init(.adaptive(minimum: CGFloat(coverWidth + 16)))])
                 {
-                    ForEach(self.games)
+                    ForEach(self.games.sorted())
                     { game in
                         GameCoverView(game:game, coverWidth: coverWidth)
                         .onHover

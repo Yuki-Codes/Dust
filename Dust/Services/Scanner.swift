@@ -72,18 +72,13 @@ class Scanner
     
     private func Scan() async throws
     {
-        if (DustApp.SgdbClient == nil)
-        {
-            return;
-        }
-        
-        let games:[Game] = try DustApp.container!.mainContext.fetch(FetchDescriptor<Game>());
+        let games:[Game] = try Services.Container.mainContext.fetch(FetchDescriptor<Game>());
         for game in games
         {
             game.foundInScan = false;
         }
         
-        let platforms:[Platform] = try DustApp.container!.mainContext.fetch(FetchDescriptor<Platform>());
+        let platforms:[Platform] = try Services.Container.mainContext.fetch(FetchDescriptor<Platform>());
        
         for platform in platforms
         {
@@ -96,7 +91,7 @@ class Scanner
         {
             if (game.foundInScan == false)
             {
-                DustApp.container!.mainContext.delete(game);
+                Services.Container.mainContext.delete(game);
             }
         }
         
@@ -165,7 +160,7 @@ class Scanner
         self.status = "\(platform.name) - \(fileName)";
         
         // not ideal, but fast enough for now.
-        let games:[Game] = try DustApp.container!.mainContext.fetch(FetchDescriptor<Game>());
+        let games:[Game] = try Services.Container.mainContext.fetch(FetchDescriptor<Game>());
         var existingGame:Game? = nil;
         for game in games
         {
@@ -178,9 +173,9 @@ class Scanner
         }
         
         // Try get SGDB game
-        if (existingGame == nil && DustApp.SgdbClient != nil)
+        if (existingGame == nil && Services.SgdbClient.connected)
         {
-            let results = try await DustApp.SgdbClient!.Search(term: fileName);
+            let results = try await Services.SgdbClient.Search(term: fileName);
             
             if (results != nil && !results!.isEmpty)
             {
@@ -192,7 +187,7 @@ class Scanner
                 existingGame!.platform = platform;
                 
                 // save
-                DustApp.container!.mainContext.insert(existingGame!);
+                Services.Container.mainContext.insert(existingGame!);
             }
         }
         
@@ -213,13 +208,13 @@ class Scanner
     
     private func GetMetadata(game:Game, force:Bool) async throws
     {
-        if (DustApp.RetroAchievementsClient?.connected == true && game.raId != nil)
+        if (Services.RetroAchievementsClient.connected && game.raId != nil)
         {
         }
         
-        if (DustApp.SgdbClient?.connected == true && game.sgdbId != nil)
+        if (Services.SgdbClient.connected == true && game.sgdbId != nil)
         {
-            let sgdbGame = try await DustApp.SgdbClient!.GetGame(id: game.sgdbId);
+            let sgdbGame = try await Services.SgdbClient.GetGame(id: game.sgdbId);
             if (sgdbGame != nil)
             {
                 if (force)
@@ -234,7 +229,7 @@ class Scanner
                 
                 if (force || game.coverUrl == nil)
                 {
-                    let grids:[SteamGridDbObject]? = try await DustApp.SgdbClient!.GetGrids(gameId: game.sgdbId!);
+                    let grids:[SteamGridDbObject]? = try await Services.SgdbClient.GetGrids(gameId: game.sgdbId!);
                     if (grids != nil && !grids!.isEmpty)
                     {
                         game.coverUrl = grids![0].thumb;
@@ -243,7 +238,7 @@ class Scanner
                 
                 if (force || game.logoUrl == nil)
                 {
-                    let logos:[SteamGridDbObject]? = try await DustApp.SgdbClient!.GetLogos(gameId: game.sgdbId!);
+                    let logos:[SteamGridDbObject]? = try await Services.SgdbClient.GetLogos(gameId: game.sgdbId!);
                     if (logos != nil && !logos!.isEmpty)
                     {
                         game.logoUrl = logos![0].thumb;
@@ -252,7 +247,7 @@ class Scanner
                 
                 if (force || game.heroUrl == nil)
                 {
-                    let heroes:[SteamGridDbObject]? = try await DustApp.SgdbClient!.GetHeroes(gameId: game.sgdbId!);
+                    let heroes:[SteamGridDbObject]? = try await Services.SgdbClient.GetHeroes(gameId: game.sgdbId!);
                     if (heroes != nil && !heroes!.isEmpty)
                     {
                         game.heroUrl = heroes![0].thumb;

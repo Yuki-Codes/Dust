@@ -26,7 +26,6 @@ struct PlatformSettingsView : View
         Form
         {
             TextField("Name", text: $platform.name);
-            TextField("Sorting Name", text: $platform.sortName);
             
             IconSelectorView(iconName: $platform.iconName);
             
@@ -105,7 +104,7 @@ struct PlatformSettingsView : View
 
 #Preview
 {
-    let testPlatform = Platform(sortName: "A", name: "MacOS", iconName: "wpf:mac-os");
+    let testPlatform = Platform(name: "MacOS", iconName: "wpf:mac-os");
     PlatformSettingsView(platform: testPlatform)
         .frame(minWidth: 300, minHeight: 250)
         .padding(16);

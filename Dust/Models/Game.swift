@@ -10,7 +10,7 @@ import SwiftData
 import SwiftUI
 
 @Model
-class Game: Identifiable, Hashable
+class Game: Identifiable, Hashable, Comparable
 {
     var title:String;
     var path:String;
@@ -24,6 +24,7 @@ class Game: Identifiable, Hashable
     var hidden:Bool = false;
     var customLaunch:String?;
     var foundInScan:Bool = false;
+    var sortTitle:String = "";
     
     var achievements:[Achievement] = [];
 
@@ -31,6 +32,23 @@ class Game: Identifiable, Hashable
     {
         self.title = title;
         self.path = path;
+    }
+    
+    static func < (lhs: Game, rhs: Game) -> Bool
+    {
+        var l:String = lhs.sortTitle;
+        if (l == "")
+        {
+            l = lhs.title;
+        }
+        
+        var r:String = rhs.sortTitle;
+        if (r == "")
+        {
+            r = rhs.title;
+        }
+        
+        return l < r;
     }
     
     public static func TestGame(index:Int = 0) -> Game

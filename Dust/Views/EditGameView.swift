@@ -114,7 +114,8 @@ struct EditGameView: View
             
             Form
             {
-                TextField("Title", text: $game.title);
+                TextField("Display Title", text: $game.title);
+                TextField("Sort Title", text: $game.sortTitle);
                 TextField("Release Year", text: $game.releaseYear ?? "");
                 //Toggle("Hidden from library", isOn: $game.hidden).toggleStyle(.checkbox);
                 
