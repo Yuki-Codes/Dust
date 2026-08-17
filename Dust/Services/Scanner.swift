@@ -105,23 +105,26 @@ class Scanner
         
         print(platform.name);
         
-        let url:URL = URL(filePath: platform.directory);
-        if (!url.startAccessingSecurityScopedResource())
+        for directory in platform.directories
         {
-            print("Failed to get security scoped resource for path: \(url.absoluteString)");
-            return;
+            let url:URL = URL(filePath: directory);
+            if (!url.startAccessingSecurityScopedResource())
+            {
+                print("Failed to get security scoped resource for path: \(url.absoluteString)");
+                return;
+            }
+            
+            do
+            {
+                try await Scan(platform: platform, dir:directory);
+            }
+            catch
+            {
+                print("error: \(error)");
+            }
+            
+            url.stopAccessingSecurityScopedResource();
         }
-        
-        do
-        {
-            try await Scan(platform: platform, dir:platform.directory);
-        }
-        catch
-        {
-            print("error: \(error)");
-        }
-        
-        url.stopAccessingSecurityScopedResource();
     }
     
     private func Scan(platform:Platform, dir:String) async throws

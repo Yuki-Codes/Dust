@@ -76,7 +76,8 @@ class GameManager
             return;
         }
         
-        _ = Shell.Execute("open \(game.platform!.directory)");
+        let dir = (game.path as NSString).deletingLastPathComponent;
+        _ = Shell.Execute("open \(dir)");
     }
     
     func Hide(game:Game)

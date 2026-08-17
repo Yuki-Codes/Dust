@@ -42,100 +42,114 @@ struct SettingsView: View
     
     var body: some View
     {
-        VStack(alignment: .leading)
+        TabView
         {
-            Text("Steam Grid Database").font(.title3).frame(alignment: .leading);
-            Text("Enter a Steam Grid Database API Key to automatically fetch cover art and metadata for your games.")
-                .font(.caption)
-                .foregroundStyle(.secondary);
-            
-            Link("Get an API key from the SGDB preferences page.", destination: URL(string: "https://www.steamgriddb.com/profile/preferences/api")!)
-                .font(.caption);
-            Form
+            VStack(alignment: .leading)
             {
-                TextField("API Key", text: $sgdbApiKey);
-            }
-            
-            Spacer().frame(height: 32);
-            
-            Text("Retro Achievements").font(.title3).frame(alignment: .leading);
-            Text("Enter a Retro Achievements API Key to fetch achievement progress for your games.")
-                .font(.caption)
-                .foregroundStyle(.secondary);
-            
-            Link("Get an API key from the Retro Achievements settings page.", destination: URL(string: "https://retroachievements.org/settings?tab=applications")!)
-                .font(.caption);
-            Form
-            {
-                TextField("User Name", text: $raUserName);
-                TextField("API Key", text: $raApiKey);
-            }
-            
-            Spacer().frame(height: 32);
-            
-            Text("Platforms").font(.title3);
-            Text("Each platform specifies a directory to search for games.")
-                .font(.caption)
-                .foregroundStyle(.secondary);
-            
-            HStack
-            {
-                GroupBox
+                HStack
                 {
-                    List(platforms, selection: $platformId)
-                    { platform in
-                        HStack
-                        {
-                            IconView(iconName: platform.iconName)
-                                .frame(width: 14, height: 14);
-                                
-                            Text(platform.name);
-                        }
-                    }
-                    .padding(.bottom, 24)
-                    .padding(.top, -4)
-                    .padding(.horizontal, -4)
-                    .listStyle(.plain)
-                    .overlay(alignment: .bottomLeading, content:
+                    GroupBox
                     {
-                        HStack(spacing: 0)
+                        List(platforms, selection: $platformId)
+                        { platform in
+                            HStack
+                            {
+                                IconView(iconName: platform.iconName)
+                                    .frame(width: 14, height: 14);
+                                    
+                                Text(platform.name);
+                            }
+                        }
+                        .padding(.bottom, 24)
+                        .padding(.top, -4)
+                        .padding(.horizontal, -4)
+                        .listStyle(.plain)
+                        .overlay(alignment: .bottomLeading, content:
+                        {
+                            HStack(spacing: 0)
                         {
                             Button(action:AddPlatform)
                             {
-                                Image(systemName: "plus");
+                                ZStack
+                                {
+                                    Rectangle().opacity(0);
+                                    Image(systemName: "plus");
+                                }
                             }
-                            .buttonStyle(.borderless)
                             .frame(width: 22, height: 22);
                             
                             Divider().frame(height: 14);
                             
                             Button(action:RemovePlatform)
                             {
-                                Image(systemName: "minus");
+                                ZStack
+                                {
+                                    Rectangle().opacity(0);
+                                    Image(systemName: "minus");
+                                }
                             }
-                            .buttonStyle(.borderless)
                             .frame(width: 22, height: 22);
                         }
                         .buttonStyle(.borderless)
-                    })
-                }
-                .formStyle(.grouped)
-                .scrollDisabled(true)
-                .frame(maxWidth: 200, maxHeight: 250)
+                        })
+                    }
+                    .formStyle(.grouped)
+                    .scrollDisabled(true)
+                    .frame(width: 200)
 
-                if (SelectedPlatform == nil)
-                {
-                    Text("Select a platform").frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-                else
-                {
-                    PlatformSettingsView(platform: SelectedPlatform!)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                        .padding(16)
+                    if (SelectedPlatform == nil)
+                    {
+                        Text("Select a platform").frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                    else
+                    {
+                        PlatformSettingsView(platform: SelectedPlatform!)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    }
                 }
             }
+            .tabItem
+            {
+                Label("Platforms", systemImage: "gamecontroller.fill")
+            }
             
-        }.frame(minWidth: 450).padding(16)
+            VStack(alignment: .leading)
+            {
+                Text("Steam Grid Database").font(.title3).frame(alignment: .leading);
+                Text("Enter a Steam Grid Database API Key to automatically fetch cover art and metadata for your games.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary);
+                
+                Link("Get an API key from the SGDB preferences page.", destination: URL(string: "https://www.steamgriddb.com/profile/preferences/api")!)
+                    .font(.caption);
+                Form
+                {
+                    TextField("API Key", text: $sgdbApiKey);
+                }
+                
+                Spacer().frame(height: 32);
+                
+                Text("Retro Achievements").font(.title3).frame(alignment: .leading);
+                Text("Enter a Retro Achievements API Key to fetch achievement progress for your games.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary);
+                
+                Link("Get an API key from the Retro Achievements settings page.", destination: URL(string: "https://retroachievements.org/settings?tab=applications")!)
+                    .font(.caption);
+                Form
+                {
+                    TextField("User Name", text: $raUserName);
+                    TextField("API Key", text: $raApiKey);
+                }
+                
+                Spacer().frame(height: 32);
+            }
+            .tabItem
+            {
+                Label("Integrations", systemImage: "link")
+            }
+        }
+        .frame(width: 600).padding(16)
         
         .onAppear
         {
@@ -157,6 +171,17 @@ struct SettingsView: View
     
     func RemovePlatform()
     {
+        if (self.SelectedPlatform == nil)
+        {
+            return;
+        }
+        
+        self.modelContext.delete(self.SelectedPlatform!);
+        
+        if (!self.platforms.isEmpty)
+        {
+            self.platformId = self.platforms[0].id;
+        }
     }
 }
 

@@ -1,0 +1,14 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Launch",
+			"type": "swift",
+			"request": "launch",
+			"program":  "${workspaceRoot}/.build/Dust.app",
+			"cwd": "${workspaceRoot}/",
+			"preLaunchTask": "Build",
+			"internalConsoleOptions": "openOnSessionStart",
+		},
+	],
+}

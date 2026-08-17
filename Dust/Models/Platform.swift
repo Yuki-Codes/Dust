@@ -8,8 +8,6 @@
 import SwiftData
 import SwiftUI
 
-
-
 @Model
 class Platform: Identifiable, Hashable
 {
@@ -18,7 +16,7 @@ class Platform: Identifiable, Hashable
     var id:UUID = UUID();
     var platformType: PlatformTypes = PlatformTypes.Applications;
     var executablePath: String = "";
-    var directory: String = "";
+    var directories:[String] = []
     var searchPattern: String = "[^.]+\\.app";
     var launchArgs: String = "{path}";
     
@@ -34,23 +32,14 @@ class Platform: Identifiable, Hashable
         
         var description: String
         {
-            switch self {
+            switch self
+            {
             case PlatformTypes.Applications:
                 return "Applications"
             case PlatformTypes.Emulator:
                 return "Emulator"
             }
         }
-    }
-    
-    init(name: String, iconName: String, id:UUID, platformType:PlatformTypes, executablePath:String, directory:String)
-    {
-        self.name = name;
-        self.iconName = iconName;
-        self.id = id;
-        self.platformType = platformType;
-        self.executablePath = executablePath;
-        self.directory = directory;
     }
     
     init(name: String, iconName: String)

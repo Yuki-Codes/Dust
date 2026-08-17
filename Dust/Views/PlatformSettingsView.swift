@@ -19,6 +19,9 @@ struct PlatformSettingsView : View
     var platform:Platform;
     
     @State
+    var selectedDirectoryIndex:Int = 0;
+    
+    @State
     var argsHelpPopupOpen:Bool = false;
     
     var body: some View
@@ -80,25 +83,75 @@ struct PlatformSettingsView : View
                 }
                 .padding(.vertical, 1);
             }
-            
-            HStack
+
+            LabeledContent("Directories")
             {
-                TextField("Directory", text: $platform.directory)
-                Button("...")
+                GroupBox
                 {
-                    let panel = NSOpenPanel();
-                    panel.allowsMultipleSelection = false;
-                    panel.canChooseDirectories = true;
-                    panel.canChooseFiles = false;
-                    if panel.runModal() == .OK
+                    List(selection: $selectedDirectoryIndex)
                     {
-                        self.platform.directory = panel.url?.path() ?? "";
+                        ForEach (platform.directories.enumerated(), id: \.offset)
+                        { (index, gameDirectory) in
+                            Text(gameDirectory);
+                        }
                     }
+                    .padding(.bottom, 24)
+                    .padding(.top, -4)
+                    .padding(.horizontal, -4)
+                    .listStyle(.plain)
+                    .overlay(alignment: .bottomLeading, content:
+                    {
+                        HStack(spacing: 0)
+                        {
+                            Button(action:AddDirectory)
+                            {
+                                ZStack
+                                {
+                                    Rectangle().opacity(0);
+                                    Image(systemName: "plus");
+                                }
+                            }
+                            .frame(width: 22, height: 22);
+                            
+                            Divider().frame(height: 14);
+                            
+                            Button(action:RemoveDirectory)
+                            {
+                                ZStack
+                                {
+                                    Rectangle().opacity(0);
+                                    Image(systemName: "minus");
+                                }
+                            }
+                            .frame(width: 22, height: 22);
+                        }
+                        .buttonStyle(.borderless)
+                    })
                 }
+                .frame(height:100)
             }
             
             TextField("Search Pattern", text: $platform.searchPattern);
         }
+    }
+    
+    func AddDirectory()
+    {
+        let panel = NSOpenPanel();
+        panel.allowsMultipleSelection = false;
+        panel.canChooseDirectories = true;
+        panel.canChooseFiles = false;
+        if (panel.runModal() == .OK && panel.url?.path() != nil)
+        {
+            self.platform.directories.append(panel.url!.path());
+            self.selectedDirectoryIndex += 1;
+        }
+    }
+    
+    func RemoveDirectory()
+    {
+        self.platform.directories.remove(at: self.selectedDirectoryIndex);
+        self.selectedDirectoryIndex -= 1;
     }
 }
 
