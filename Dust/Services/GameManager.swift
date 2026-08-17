@@ -54,6 +54,11 @@ class GameManager
             args = args.replacingOccurrences(of: "{file}", with: "\"\(fileName)\"");
             args = args.replacingOccurrences(of: "{title}", with: "\"\(game.title)\"");
             
+            if (game.platform!.retroArchCore != nil && game.platform!.retroArchCore != "")
+            {
+                args = args.replacingOccurrences(of: "{core}", with: "\"\(game.platform!.retroArchCore!)\"");
+            }
+            
             proc = Shell.Execute("open -n -W \"\(game.platform!.executablePath)\" --args \(args)");
         }
         

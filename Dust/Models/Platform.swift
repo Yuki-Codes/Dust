@@ -19,6 +19,7 @@ class Platform: Identifiable, Hashable
     var directories:[String] = []
     var searchPattern: String = "[^.]+\\.app";
     var launchArgs: String = "{path}";
+    var retroArchCore: String?;
     
     enum PlatformTypes : Codable, CaseIterable, Identifiable, CustomStringConvertible
     {
@@ -38,6 +39,8 @@ class Platform: Identifiable, Hashable
                 return "Applications"
             case PlatformTypes.Emulator:
                 return "Emulator"
+            case PlatformTypes.RetroArch:
+                return "RetroArch"
             }
         }
     }
