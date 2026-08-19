@@ -39,8 +39,6 @@ class Platform: Identifiable, Hashable
                 return "Applications"
             case PlatformTypes.Emulator:
                 return "Emulator"
-            case PlatformTypes.RetroArch:
-                return "RetroArch"
             }
         }
     }
