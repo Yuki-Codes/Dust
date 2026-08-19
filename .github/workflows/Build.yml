@@ -14,11 +14,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Build macOS Application
-        uses: starburst997/build-macos@v1.0.7
+      - uses: Apple-Actions/xcodebuild@v1
         with:
-          project_path: "Dust.xcodeproj"
-          scheme: "Dust"
-          output_name: "Dust"
-          mac_bundle_id: "com.Yuki.Dust"
-          build_signed: false
+          project: Dust.xcodeproj
+          scheme: Dust
+          sdk: macosx
+          build-number: ${{ github.run_number }}
