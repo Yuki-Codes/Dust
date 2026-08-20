@@ -48,11 +48,15 @@ class GameManager
                 args = game.customLaunch!;
             }
             
-            let fileName = (game.path as NSString).lastPathComponent
+            let fileName = (game.path as NSString).lastPathComponent;
+            let directory = game.path.replacingOccurrences(of: fileName, with: "");
+            let directoryName = (directory as NSString).lastPathComponent
                 
             args = args.replacingOccurrences(of: "{path}", with: "\"\(game.path)\"");
             args = args.replacingOccurrences(of: "{file}", with: "\"\(fileName)\"");
             args = args.replacingOccurrences(of: "{title}", with: "\"\(game.title)\"");
+            args = args.replacingOccurrences(of: "{directory}", with: "\"\(directory)\"");
+            args = args.replacingOccurrences(of: "{directoryName}", with: "\"\(directoryName)\"");
             
             if (game.platform!.retroArchCore != nil && game.platform!.retroArchCore != "")
             {

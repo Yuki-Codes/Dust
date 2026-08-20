@@ -260,9 +260,3 @@ class Scanner
         }
     }
 }
-
-extension EnvironmentValues
-{
-    @Entry
-    var scanner: Scanner = Scanner();
-}
