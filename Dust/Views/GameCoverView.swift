@@ -41,12 +41,18 @@ struct GameCoverView: View
                 {
                     if (game.coverUrl != nil)
                     {
-                        UrlImageView(url:game.coverUrl!);
+                        UrlImageView(url:game.coverUrl!)
+                            .opacity(game.foundInScan ? 1.0 : 0.5)
                     }
                     else
                     {
                         Rectangle().opacity(0).background(.thinMaterial);
                     }
+        
+                    IconView(iconName:"material-symbols-light:disc-full")
+                        .frame(width:48, height:48)
+                        .shadow(color: Color.black, radius: 12)
+                        .opacity(game.foundInScan ? 0.0 : 1.0)
                 }
                 .cornerRadius(6)
                 .frame(width: CGFloat(coverWidth), height: CGFloat(coverHeight))

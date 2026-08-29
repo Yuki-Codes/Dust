@@ -92,6 +92,16 @@ struct MainView: View
         }
         
         .searchable(text: $search)
+        
+        .onAppear
+        {
+            self.OnAppear();
+        }
+    }
+    
+    func OnAppear()
+    {
+        Services.Scanner.BeginScan();
     }
 }
 

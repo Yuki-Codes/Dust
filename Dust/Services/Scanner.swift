@@ -86,14 +86,14 @@ class Scanner
         }
         
         // Delete games that are missing.
-        self.status = "Cleaning";
+        /*self.status = "Cleaning";
         for game in games
         {
             if (game.foundInScan == false)
             {
                 Services.Container.mainContext.delete(game);
             }
-        }
+        }*/
         
         self.status = "Done";
         try await Task.sleep(for: .seconds(1))
@@ -211,16 +211,24 @@ class Scanner
     
     private func GetMetadata(game:Game, force:Bool) async throws
     {
+        // Don't bother updatign games that are hidden.
+        if (game.hidden)
+        {
+            return;
+        }
+        
         if (Services.RetroAchievementsClient.connected && game.raId != nil)
         {
         }
         
         if (Services.SgdbClient.connected == true && game.sgdbId != nil)
         {
-            let sgdbGame = try await Services.SgdbClient.GetGame(id: game.sgdbId);
-            if (sgdbGame != nil)
+            let updataMetadata = force || game.title == "" || game.releaseYear == nil;
+            if (updataMetadata)
             {
-                if (force)
+                let sgdbGame = try await Services.SgdbClient.GetGame(id: game.sgdbId);
+                
+                if (force || game.title == "")
                 {
                     game.title = sgdbGame!.name;
                 }
@@ -229,32 +237,32 @@ class Scanner
                 {
                     game.releaseYear = sgdbGame!.release_date!.formatted(.dateTime.year());
                 }
-                
-                if (force || game.coverUrl == nil)
+            }
+            
+            if (force || game.coverUrl == nil)
+            {
+                let grids:[SteamGridDbObject]? = try await Services.SgdbClient.GetGrids(gameId: game.sgdbId!);
+                if (grids != nil && !grids!.isEmpty)
                 {
-                    let grids:[SteamGridDbObject]? = try await Services.SgdbClient.GetGrids(gameId: game.sgdbId!);
-                    if (grids != nil && !grids!.isEmpty)
-                    {
-                        game.coverUrl = grids![0].thumb;
-                    }
+                    game.coverUrl = grids![0].thumb;
                 }
-                
-                if (force || game.logoUrl == nil)
+            }
+            
+            if (force || game.logoUrl == nil)
+            {
+                let logos:[SteamGridDbObject]? = try await Services.SgdbClient.GetLogos(gameId: game.sgdbId!);
+                if (logos != nil && !logos!.isEmpty)
                 {
-                    let logos:[SteamGridDbObject]? = try await Services.SgdbClient.GetLogos(gameId: game.sgdbId!);
-                    if (logos != nil && !logos!.isEmpty)
-                    {
-                        game.logoUrl = logos![0].thumb;
-                    }
+                    game.logoUrl = logos![0].thumb;
                 }
-                
-                if (force || game.heroUrl == nil)
+            }
+            
+            if (force || game.heroUrl == nil)
+            {
+                let heroes:[SteamGridDbObject]? = try await Services.SgdbClient.GetHeroes(gameId: game.sgdbId!);
+                if (heroes != nil && !heroes!.isEmpty)
                 {
-                    let heroes:[SteamGridDbObject]? = try await Services.SgdbClient.GetHeroes(gameId: game.sgdbId!);
-                    if (heroes != nil && !heroes!.isEmpty)
-                    {
-                        game.heroUrl = heroes![0].thumb;
-                    }
+                    game.heroUrl = heroes![0].thumb;
                 }
             }
         }
