@@ -76,10 +76,8 @@ class AchievementsManager
             return;
         }
         
-        if (game.raId == -1)
-        {
-            game.achievements.removeAll();
-        }
+        // Temp: remove all existing achievements.
+        game.achievements.removeAll();
         
         if (self.raProfile != nil && game.raId != nil && game.raId != -1)
         {

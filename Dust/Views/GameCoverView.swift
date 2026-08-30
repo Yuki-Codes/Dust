@@ -94,6 +94,22 @@ struct GameCoverView: View
                         }
                     }
                     
+                    if (!game.achievements.isEmpty)
+                    {
+                        HStack(alignment: .center, spacing: 2)
+                        {
+                            Image(systemName: "trophy.fill")
+                                .resizable()
+                                .frame(width: 10, height: 10)
+                                .padding(2)
+                                
+                            Text("\(game.earnedAchievements) of \(game.achievmentCount)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1);
+                        }
+                    }
+                    
                     Spacer();
                 }
             }

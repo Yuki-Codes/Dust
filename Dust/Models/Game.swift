@@ -27,6 +27,31 @@ class Game: Identifiable, Hashable, Comparable
     var sortTitle:String = "";
     
     var achievements:[Achievement] = [];
+    
+    var achievmentCount:Int
+    {
+        return self.achievements.count;
+    }
+    
+    var earnedAchievements:Int
+    {
+        var earnedAchievements:Int = 0;
+        
+        for achievement in self.achievements
+        {
+            if (achievement.earned != nil)
+            {
+                earnedAchievements += 1;
+            }
+        }
+        
+        return earnedAchievements;
+    }
+    
+    var achievementProgress:Float
+    {
+        return Float(self.earnedAchievements) / Float(self.achievmentCount);
+    }
 
     init(title:String, path:String)
     {

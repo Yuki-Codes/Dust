@@ -281,9 +281,6 @@ class Scanner
             }
         }
         
-        if (Services.RetroAchievementsClient.connected && game.raId != nil && game.raId != 0)
-        {
-            try await Services.AchievementsManager.UpdateAchievements(game:game);
-        }
+        try await Services.AchievementsManager.UpdateAchievements(game:game);
     }
 }

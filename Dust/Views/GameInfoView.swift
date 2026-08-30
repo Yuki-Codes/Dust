@@ -16,31 +16,6 @@ struct GameInfoView: View
     @Environment(GameManager.self)
     var gameManager:GameManager;
     
-    var achievmentCount:Int
-    {
-        return game.achievements.count;
-    }
-    
-    var earnedAchievements:Int
-    {
-        var earnedAchievements:Int = 0;
-        
-        for achievement in game.achievements
-        {
-            if (achievement.earned != nil)
-            {
-                earnedAchievements += 1;
-            }
-        }
-        
-        return earnedAchievements;
-    }
-    
-    var achievementProgress:Float
-    {
-        return Float(self.earnedAchievements) / Float(self.achievmentCount);
-    }
-    
     var body: some View
     {
         VStack
@@ -77,16 +52,16 @@ struct GameInfoView: View
             }
             .padding(.bottom, 16)
             
-            if (self.achievmentCount > 0)
+            if (game.achievmentCount > 0)
             {
                 HStack
                 {
                     Image(systemName: "trophy.fill")
                         .frame(width: 20, height: 20);
                     
-                    Text("\(self.earnedAchievements) of \(self.achievmentCount)");
+                    Text("\(game.earnedAchievements) of \(game.achievmentCount)");
                     
-                    ProgressView(value: achievementProgress)
+                    ProgressView(value: game.achievementProgress)
                 }
                 .padding(.horizontal, 16);
                 
