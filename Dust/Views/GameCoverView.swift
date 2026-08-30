@@ -68,7 +68,7 @@ struct GameCoverView: View
                 
                 VStack(alignment: .leading, spacing: 2)
                 {
-                    Text(game.title).lineLimit(1);
+                    Text(game.title).lineLimit(2);
                     
                     if (game.platform != nil)
                     {
@@ -81,8 +81,20 @@ struct GameCoverView: View
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1);
+                                
+                            Spacer();
+                                
+                            if (game.releaseYear != nil)
+                            {
+                                Text(game.releaseYear!)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1);
+                            }
                         }
                     }
+                    
+                    Spacer();
                 }
             }
         }

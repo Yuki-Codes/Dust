@@ -71,63 +71,54 @@ class AchievementsManager
     
     func UpdateAchievements(game:Game) async throws
     {
-        if (self.raProfile != nil)
+        if (self.raProfile == nil)
         {
-            if (game.raId == nil)
-            {
-                // See if this game was just played on RA and save it if so.
-                let recentGames = try await Services.RetroAchievementsClient.GetUserRecentlyPlayedGames(ulid: self.raProfile!.ULID);
-                if (recentGames != nil)
-                {
-                    for recentGame in recentGames!
-                    {
-                        if (recentGame.Title == game.title)
-                        {
-                            game.raId = recentGame.GameID;
-                        }
-                    }
-                }
-            }
+            return;
+        }
+        
+        if (game.raId == -1)
+        {
+            game.achievements.removeAll();
+        }
+        
+        if (self.raProfile != nil && game.raId != nil && game.raId != -1)
+        {
+            let progress = try await Services.RetroAchievementsClient.GetGameInfoAndUserProgress(ulid: self.raProfile!.ULID, gameId: game.raId!);
             
-            if (game.raId != nil)
+            if (progress != nil)
             {
-                let progress = try await Services.RetroAchievementsClient.GetGameInfoAndUserProgress(ulid: self.raProfile!.ULID, gameId: game.raId!);
-                
-                if (progress != nil)
+                for (key, raAchievement) in progress!.Achievements!
                 {
-                    for (key, raAchievement) in progress!.Achievements!
+                    var achievement = game.GetAchievement(raId: raAchievement.ID);
+                    
+                    // Create this RA Achievement locally.
+                    if (achievement == nil)
                     {
-                        var achievement = game.GetAchievement(raId: raAchievement.ID);
-                        
-                        // Create this RA Achievement locally.
-                        if (achievement == nil)
-                        {
-                            achievement = Achievement(raId: raAchievement.ID);
-                            game.achievements.append(achievement!);
-                        }
-                        
-                        achievement?.sortOrder = key;
-                        
-                        if (achievement!.title == "")
-                        {
-                            achievement!.title = raAchievement.Title;
-                        }
-                        
-                        if (achievement!.body == nil)
-                        {
-                            achievement!.body = raAchievement.Description;
-                        }
-                        
-                        if (achievement!.imageUrl == nil && raAchievement.BadgeName != nil)
-                        {
-                            let badgeUrl:String = "/Badge/\(raAchievement.BadgeName!).png";
-                            achievement!.imageUrl = Services.RetroAchievementsClient.GetMediaUrl(uri: badgeUrl);
-                        }
-                        
-                        if (raAchievement.DateEarned != nil)
-                        {
-                            achievement?.earned = raAchievement.DateEarned;
-                        }
+                        achievement = Achievement(raId: raAchievement.ID);
+                        game.achievements.append(achievement!);
+                    }
+                    
+                    achievement?.sortOrder = key;
+                    
+                    if (achievement!.title == "")
+                    {
+                        achievement!.title = raAchievement.Title;
+                    }
+                    
+                    if (achievement!.body == nil)
+                    {
+                        achievement!.body = raAchievement.Description;
+                    }
+                    
+                    if (achievement!.imageUrl == nil && raAchievement.BadgeName != nil)
+                    {
+                        let badgeUrl:String = "/Badge/\(raAchievement.BadgeName!).png";
+                        achievement!.imageUrl = Services.RetroAchievementsClient.GetMediaUrl(uri: badgeUrl);
+                    }
+                    
+                    if (raAchievement.DateEarned != nil)
+                    {
+                        achievement?.earned = raAchievement.DateEarned;
                     }
                 }
             }

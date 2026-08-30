@@ -65,6 +65,27 @@ class RetroAchievementsClient : Observable
         var TotalTruePoints:Int = 0;
     }
     
+    public func Search(query:String) async throws -> [GameResult]?
+    {
+        // HACK: Use the internal RA search API since the real api doesnt have one. >:[
+        if (self.session == nil)
+        {
+            return nil;
+        }
+        
+        var urlStr:String = "https://retroachievements.org/internal-api/search?q=\(query)&scope=games";
+        guard let url = URL(string: urlStr) else
+        {
+            return nil;
+        }
+        
+        let (data, _) = try await self.session!.data(from: url);
+        
+        let decoder = JSONDecoder();
+        let result:SearchObject = try decoder.decode(SearchObject.self, from: data);
+        return result.results?.games;
+    }
+    
     public func GetUserRecentlyPlayedGames(ulid:String) async throws -> [RecentGame]?
     {
         return try await Get(
@@ -72,6 +93,22 @@ class RetroAchievementsClient : Observable
             args: [
                 "u": ulid
             ]);
+    }
+    
+    class GameResult: Decodable
+    {
+        var id:Int = 0;
+        var title:String?;
+    }
+    
+    class SearchObject : Decodable
+    {
+        var results:SearchResults?;
+        
+        class SearchResults : Decodable
+        {
+            var games:[GameResult]?;
+        }
     }
     
     class RecentGame : Decodable

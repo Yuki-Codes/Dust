@@ -217,10 +217,6 @@ class Scanner
             return;
         }
         
-        if (Services.RetroAchievementsClient.connected && game.raId != nil)
-        {
-        }
-        
         if (Services.SgdbClient.connected == true && game.sgdbId != nil)
         {
             let updataMetadata = force || game.title == "" || game.releaseYear == nil;
@@ -265,6 +261,29 @@ class Scanner
                     game.heroUrl = heroes![0].thumb;
                 }
             }
+        }
+        
+        // Try to fgind this game on RetroAchievements.
+        if (Services.RetroAchievementsClient.connected && game.raId == nil)
+        {
+            let raGames = try await Services.RetroAchievementsClient.Search(query: game.title);
+            game.raId = -1;
+            if (raGames != nil && !raGames!.isEmpty)
+            {
+                for raGame in raGames!
+                {
+                    if (raGame.title == game.title)
+                    {
+                        game.raId = raGame.id;
+                        print("Found RA: \(game.raId!) for \"\(game.title)\"");
+                    }
+                }
+            }
+        }
+        
+        if (Services.RetroAchievementsClient.connected && game.raId != nil && game.raId != 0)
+        {
+            try await Services.AchievementsManager.UpdateAchievements(game:game);
         }
     }
 }
