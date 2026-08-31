@@ -181,7 +181,7 @@ struct GameCoverView: View
                 }
                 label:
                 {
-                    Label("Hide", systemImage: "trash")
+                    Label("Delete", systemImage: "trash")
                 }
             }
         }
