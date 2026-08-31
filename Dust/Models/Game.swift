@@ -25,33 +25,6 @@ class Game: Identifiable, Hashable, Comparable
     var customLaunch:String?;
     var foundInScan:Bool = false;
     var sortTitle:String = "";
-    
-    var achievements:[Achievement] = [];
-    
-    var achievmentCount:Int
-    {
-        return self.achievements.count;
-    }
-    
-    var earnedAchievements:Int
-    {
-        var earnedAchievements:Int = 0;
-        
-        for achievement in self.achievements
-        {
-            if (achievement.earned != nil)
-            {
-                earnedAchievements += 1;
-            }
-        }
-        
-        return earnedAchievements;
-    }
-    
-    var achievementProgress:Float
-    {
-        return Float(self.earnedAchievements) / Float(self.achievmentCount);
-    }
 
     init(title:String, path:String)
     {
@@ -84,40 +57,6 @@ class Game: Identifiable, Hashable, Comparable
         testGame.logoUrl = "https://cdn2.steamgriddb.com/logo_thumb/6a3b6ffa5dbf8a5abcad2135e5bc77d9.png";
         testGame.heroUrl = "https://cdn2.steamgriddb.com/hero_thumb/442465f5282183631234848d916ce365.jpg";
         return testGame;
-    }
-    
-    public func GetAchievement(raId:Int) -> Achievement?
-    {
-        for achievement in achievements
-        {
-            if achievement.raId == raId
-            {
-                return achievement;
-            }
-        }
-        
-        return nil;
-    }
-}
-
-@Model
-class Achievement : Comparable
-{
-    var raId:Int? = nil;
-    var title:String = "";
-    var body:String? = nil;
-    var imageUrl:String? = nil;
-    var earned:Date? = nil;
-    var sortOrder:String? = nil;
-    
-    init(raId:Int)
-    {
-        self.raId = raId;
-    }
-    
-    static func < (lhs: Achievement, rhs: Achievement) -> Bool
-    {
-        return lhs.sortOrder ?? "" < rhs.sortOrder ?? "";
     }
 }
 

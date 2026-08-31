@@ -94,22 +94,6 @@ struct GameCoverView: View
                         }
                     }
                     
-                    if (!game.achievements.isEmpty)
-                    {
-                        HStack(alignment: .center, spacing: 2)
-                        {
-                            Image(systemName: "trophy.fill")
-                                .resizable()
-                                .frame(width: 10, height: 10)
-                                .padding(2)
-                                
-                            Text("\(game.earnedAchievements) of \(game.achievmentCount)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1);
-                        }
-                    }
-                    
                     Spacer();
                 }
             }
@@ -174,7 +158,7 @@ struct GameCoverView: View
                 }
                 label:
                 {
-                    Label("Delete", systemImage: "trash")
+                    Label("Hide", systemImage: "eye.slash")
                 }
             }
             else
@@ -185,7 +169,19 @@ struct GameCoverView: View
                 }
                 label:
                 {
-                    Label("Put Back", systemImage: "trash.slash")
+                    Label("Put Back", systemImage: "eye")
+                }
+            }
+            
+            if (!game.foundInScan)
+            {
+                Button()
+                {
+                    gameManager.Delete(game: game);
+                }
+                label:
+                {
+                    Label("Hide", systemImage: "trash")
                 }
             }
         }

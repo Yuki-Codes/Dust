@@ -99,6 +99,11 @@ class GameManager
         game.hidden = false;
     }
     
+    func Delete(game:Game)
+    {
+        Services.Container.mainContext.delete(game);
+    }
+    
     private func BeginWatching(game:Game, process:Process)
     {
         _ = Task
@@ -118,8 +123,6 @@ class GameManager
             {
                 try await Task.sleep(for: .seconds(1));
             }
-            
-            try await Services.AchievementsManager.UpdateAchievements(game:game);
         }
         catch
         {

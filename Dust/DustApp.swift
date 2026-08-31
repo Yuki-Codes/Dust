@@ -22,10 +22,8 @@ struct DustApp: App
         .modelContainer(Services.Container)
         .environment(Services.Scanner)
         .environment(Services.GameManager)
-        .environment(Services.AchievementsManager)
         .environment(Services.SgdbClient)
         .environment(Services.IconifyClient)
-        .environment(Services.RetroAchievementsClient)
         .commands
         {
             CommandMenu("Games")

@@ -84,11 +84,6 @@ struct MainView: View
         
         .toolbar
         {
-            ToolbarItem
-            {
-                ProfileTagView()
-                    .padding(.horizontal, 16)
-            }
         }
         
         .searchable(text: $search)

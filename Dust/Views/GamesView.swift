@@ -26,7 +26,7 @@ struct GamesView: View
     @State
     var hover: Game? = nil;
     
-    var coverWidth:Float = 150;
+    var coverWidth:Float = 128;
     
     var body: some View
     {

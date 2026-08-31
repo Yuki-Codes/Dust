@@ -85,16 +85,6 @@ class Scanner
             try await self.Scan(platform: platform);
         }
         
-        // Delete games that are missing.
-        /*self.status = "Cleaning";
-        for game in games
-        {
-            if (game.foundInScan == false)
-            {
-                Services.Container.mainContext.delete(game);
-            }
-        }*/
-        
         self.status = "Done";
         try await Task.sleep(for: .seconds(1))
     }
@@ -262,25 +252,5 @@ class Scanner
                 }
             }
         }
-        
-        // Try to fgind this game on RetroAchievements.
-        if (Services.RetroAchievementsClient.connected && game.raId == nil)
-        {
-            let raGames = try await Services.RetroAchievementsClient.Search(query: game.title);
-            game.raId = -1;
-            if (raGames != nil && !raGames!.isEmpty)
-            {
-                for raGame in raGames!
-                {
-                    if (raGame.title == game.title)
-                    {
-                        game.raId = raGame.id;
-                        print("Found RA: \(game.raId!) for \"\(game.title)\"");
-                    }
-                }
-            }
-        }
-        
-        try await Services.AchievementsManager.UpdateAchievements(game:game);
     }
 }
