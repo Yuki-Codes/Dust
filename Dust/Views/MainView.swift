@@ -25,18 +25,22 @@ struct MainView: View {
     @State
     private var search: String = ""
 
+    @State
+    private var includeHidden: Bool = false
+
     var body: some View {
         @Bindable
         var bindableGameManager = self.gameManager
 
-        GamesView(searchTerm: self.search)
+        GamesView(searchTerm: self.search, includeHidden: self.includeHidden)
             .ignoresSafeArea(edges: .top)
 
         .overlay(alignment: .bottomTrailing) {
             ZStack {
                 ZStack {
                     HStack {
-                        ProgressView().scaleEffect(0.75)
+                        ProgressView()
+                            .scaleEffect(0.75)
                         VStack(alignment: .leading) {
                             Text("Scanning for games")
                             Text(self.scanner?.status ?? "No Scanner")
@@ -72,6 +76,11 @@ struct MainView: View {
         }
 
         .toolbar {
+             Menu {
+                Toggle("Show hidden games", isOn: $includeHidden)
+            } label: {
+                Label("Filters", systemImage: "line.3.horizontal.decrease")
+            }
         }
 
         .searchable(text: self.$search)

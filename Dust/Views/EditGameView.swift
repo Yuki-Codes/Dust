@@ -20,132 +20,136 @@ struct EditGameView: View {
     var game: Game
 
     @State
-    var searchTerm: String = ""
-
-    @State
-    private var searchResults: [SteamGridDbGame]?
-
-    @State
     var isPopoverPresented: Bool = false
 
     @State
     var selectedSgdbGame: Int = 0
 
+    @State
+    var selectedShortcutIndex: Int = 0
+
     var body: some View {
         VStack(alignment: .leading) {
-            Form {
-                HStack {
-                    TextField("SteamGridDB.com/game/", value: self.$game.sgdbId, formatter: NumberFormatter())
+            HStack {
+                Form {
+                    TextField("Display Title", text: self.$game.title)
+                    TextField("Sort Title", text: self.$game.sortTitle)
+                    TextField("Release Year", text: self.$game.releaseYear ?? "")
+                    // Toggle("Hidden from library", isOn: $game.hidden).toggleStyle(.checkbox);
 
-                    Button(action: {
-                        self.isPopoverPresented = true
-                        self.beginSearch()
-                    }, label: {
-                        Image(systemName: "magnifyingglass")
-                    })
+                    HStack {
+                        ArtworkSelectorView(game: self.$game, type: .cover)
+                            .frame(height: 150)
+                        ArtworkSelectorView(game: self.$game, type: .logo)
+                            .frame(height: 150)
+                        ArtworkSelectorView(game: self.$game, type: .hero)
+                            .frame(height: 150)
+                    }
 
-                    Button(action: {
-                        self.scanner!.beginGetMetadata(game: self.game, force: true)
-                    }, label: {
-                        if self.scanner!.isScanning {
-                            ProgressView().scaleEffect(0.4)
-                        } else {
-                            Image(systemName: "square.and.arrow.down")
-                        }
-                    })
-                }
-                .popover(isPresented: self.$isPopoverPresented) {
-                    VStack {
-                        TextField("Search", text: self.$searchTerm)
-                            .onSubmit(self.beginSearch)
+                    TextField("Arguments", text: self.$game.customLaunch ?? "", prompt: Text(self.game.platform?.launchArgs ?? ""))
+                    Text("Override the default launch arguments for this game.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
 
-                        Text("Metadata and artwork provided by the Steam Grid Database")
-                            .font(Font.caption)
-                            .opacity(0.5)
+                    HStack {
+                        Text("Path: ")
+                            .font(.caption)
+                        Text(self.game.path)
+                            .font(.caption)
+                    }
 
-                        if self.searchResults != nil {
-                            List(self.searchResults!, selection: self.$game.sgdbId) { sgdbGame in
-                                HStack {
-                                    Text(sgdbGame.name).lineLimit(1)
+                    if self.game.platform?.type == .emulator {
+                        HStack {
+                            Text("Executable: ")
+                                .font(.caption)
 
-                                    let releaseYear: String = sgdbGame.release_date?.formatted(.dateTime.year()) ?? ""
-                                    Text(releaseYear)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .frame(height: 200)
-                            .listStyle(.plain)
-                        } else {
-                            Spacer()
-                                .frame(height: 200)
+                            Text(self.game.platform?.executablePath ?? "")
+                                .font(.caption)
                         }
                     }
-                    .frame(width: 400)
-                    .padding(16)
                 }
-            }
+                .frame(width: 400)
 
-            Text("Find this game on the Steam Grid Database to download artwork and metadata.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                if self.game.platform?.type == .applications {
+                    VStack {
+                        GroupBox {
+                            Text("Shortcuts")
+                            List(selection: self.$selectedShortcutIndex) {
+                                 ForEach(self.game.shortcuts.enumerated(), id: \.offset) { (_, shortcut) in
+                                    Text(shortcut.title)
+                                 }
+                            }
+                            .padding(.bottom, 24)
+                            .padding(.top, -4)
+                            .padding(.horizontal, -4)
+                            .listStyle(.plain)
+                            .overlay(alignment: .bottomLeading, content:
+                            {
+                                HStack(spacing: 0) {
+                                    Button(action: self.addShortcut) {
+                                        ZStack {
+                                            Rectangle().opacity(0)
+                                            Image(systemName: "plus")
+                                        }
+                                    }
+                                    .frame(width: 22, height: 22)
 
-            Spacer().frame(height: 32)
+                                    Divider().frame(height: 14)
 
-            Form {
-                TextField("Display Title", text: self.$game.title)
-                TextField("Sort Title", text: self.$game.sortTitle)
-                TextField("Release Year", text: self.$game.releaseYear ?? "")
-                // Toggle("Hidden from library", isOn: $game.hidden).toggleStyle(.checkbox);
+                                    Button(action: self.removeShortcut) {
+                                        ZStack {
+                                            Rectangle().opacity(0)
+                                            Image(systemName: "minus")
+                                        }
+                                    }
+                                    .frame(width: 22, height: 22)
+                                }
+                                .buttonStyle(.borderless)
+                                })
+                        }
+                        .formStyle(.grouped)
+                        .scrollDisabled(true)
+                        .frame(width: 200)
 
-                HStack {
-                    ArtworkSelectorView(game: self.$game, type: .cover)
-                    ArtworkSelectorView(game: self.$game, type: .logo)
-                    ArtworkSelectorView(game: self.$game, type: .hero)
-                }
-
-                TextField("Arguments", text: self.$game.customLaunch ?? "", prompt: Text(self.game.platform?.launchArgs ?? ""))
-                Text("Override the default launch arguments for this game.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-                .frame(height: 32)
-
-            HStack {
-                Text("Path: ")
-                    .font(.caption)
-                Text(self.game.path)
-                    .font(.caption)
-            }
-
-            if self.game.platform?.type == .emulator {
-                HStack {
-                    Text("Executable: ")
-                        .font(.caption)
-
-                    Text(self.game.platform?.executablePath ?? "")
-                        .font(.caption)
+                        if !self.game.shortcuts.isEmpty {
+                            EditShortcutView(
+                                game: self.$game,
+                                shortcut: self.$game.shortcuts[self.selectedShortcutIndex])
+                        }
+                    }
                 }
             }
         }
     }
 
-    func beginSearch() {
-        if self.searchTerm == "" {
-            self.searchTerm = self.game.title
-        }
-
-        _ = Task {
-            return await self.searchSafe()
-        }
+    func addShortcut() {
+        self.game.shortcuts.append(Shortcut(title: "New shortcut"))
+        self.selectedShortcutIndex += 1
     }
 
-    func searchSafe() async {
-        do {
-            self.searchResults = try await self.sgdb.search(term: self.searchTerm)
-        } catch {
-            print(error)
+    func removeShortcut() {
+        self.game.shortcuts.remove(at: self.selectedShortcutIndex)
+        self.selectedShortcutIndex -= 1
+    }
+}
+
+struct EditShortcutView: View {
+    @Binding
+    var game: Game
+
+    @Binding
+    var shortcut: Shortcut
+
+    var shortcutIndex: Int {
+        self.game.shortcuts.firstIndex(of: self.shortcut) ?? 0
+    }
+
+    var body: some View {
+        Form {
+            TextField("Title", text: $shortcut.title)
+            TextField("Subtitle", text: $shortcut.subTitle ?? "")
+            ArtworkSelectorView(game: self.$game, shortcutIndex: shortcutIndex, type: .icon)
+                .frame(height: 64)
         }
     }
 }

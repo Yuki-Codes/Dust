@@ -11,22 +11,34 @@ struct ArtworkSelectorView: View {
     @Binding
     var game: Game
 
+    var shortcutIndex: Int = 0
+
     var type: ArtworkType
 
     @Environment(SteamGridDbClient.self)
     var sgdbClient: SteamGridDbClient
 
     @State
-    private var searchResults: [SteamGridDbObject]?
+    private var selectedSgdbId: Int = 0
 
     @State
     private var isPopoverPresented: Bool = false
+
+    @State
+    var searchTerm: String = ""
+
+    @State
+    private var gameSearchResults: [SteamGridDbGame]?
+
+    @State
+    private var artSearchResults: [SteamGridDbObject]?
 
     private var artUrl: String? {
         switch self.type {
         case ArtworkType.cover: return self.game.coverUrl
         case ArtworkType.hero: return self.game.heroUrl
         case ArtworkType.logo: return self.game.logoUrl
+        case ArtworkType.icon: return self.game.shortcuts[self.shortcutIndex].iconUrl
         }
     }
 
@@ -35,6 +47,7 @@ struct ArtworkSelectorView: View {
         case ArtworkType.cover: return "Cover"
         case ArtworkType.hero: return "Hero"
         case ArtworkType.logo: return "Logo"
+        case ArtworkType.icon: return "Icon"
         }
     }
 
@@ -42,15 +55,39 @@ struct ArtworkSelectorView: View {
         case cover
         case logo
         case hero
+        case icon
     }
 
-    func beginSearch() {
+    func beginGameSearch() {
         _ = Task {
-            return await self.searchSafe()
+            return await self.searchGameSafe()
         }
     }
 
-    func searchSafe() async {
+    func searchGameSafe() async {
+        do {
+            if self.game.sgdbId == nil {
+                return
+            }
+
+            self.gameSearchResults = try await self.sgdbClient.search(term: self.searchTerm)
+
+            if self.gameSearchResults != nil && !self.gameSearchResults!.isEmpty {
+                self.selectedSgdbId = self.gameSearchResults![0].id
+                await self.searchArtSafe()
+            }
+        } catch {
+            print(error)
+        }
+    }
+
+    func beginArtSearch() {
+        _ = Task {
+            return await self.searchArtSafe()
+        }
+    }
+
+    func searchArtSafe() async {
         do {
             if self.game.sgdbId == nil {
                 return
@@ -58,11 +95,13 @@ struct ArtworkSelectorView: View {
 
             switch self.type {
             case .cover:
-                self.searchResults = try await self.sgdbClient.getGrids(gameId: self.game.sgdbId!)
+                self.artSearchResults = try await self.sgdbClient.getGrids(gameId: self.selectedSgdbId)
             case .logo:
-                self.searchResults = try await self.sgdbClient.getLogos(gameId: self.game.sgdbId!)
+                self.artSearchResults = try await self.sgdbClient.getLogos(gameId: self.selectedSgdbId)
             case .hero:
-                self.searchResults = try await self.sgdbClient.getHeroes(gameId: self.game.sgdbId!)
+                self.artSearchResults = try await self.sgdbClient.getHeroes(gameId: self.selectedSgdbId)
+            case .icon:
+                self.artSearchResults = try await self.sgdbClient.getIcons(gameId: self.selectedSgdbId)
             }
         } catch {
             print(error)
@@ -72,7 +111,6 @@ struct ArtworkSelectorView: View {
     var body: some View {
         Button(action: {
             self.isPopoverPresented = true
-            self.beginSearch()
         }, label: {
             VStack {
                 ZStack {
@@ -88,44 +126,73 @@ struct ArtworkSelectorView: View {
         })
         .popover(isPresented: self.$isPopoverPresented) {
             VStack {
+                TextField("Search", text: self.$searchTerm)
+                    .onSubmit(self.beginGameSearch)
+                    .padding(16)
+
+                HStack {
+                    if gameSearchResults != nil {
+                        List(self.gameSearchResults!, selection: self.$selectedSgdbId) { sgdbGame in
+                            HStack {
+                                Text(sgdbGame.name)
+                                    .lineLimit(1)
+                                Spacer()
+                                Text(sgdbGame.release_date?.formatted(.dateTime.year()) ?? "")
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
+                        }
+                        .frame(width: 200)
+                        .listStyle(.sidebar)
+                        .onChange(of: selectedSgdbId) {
+                            self.beginArtSearch()
+                        }
+                    }
+
+                    if self.artSearchResults != nil {
+                        ScrollView {
+                            LazyVGrid(
+                                columns: [
+                                    GridItem(.fixed(100)),
+                                    GridItem(.fixed(100)),
+                                    GridItem(.fixed(100)),
+                                    GridItem(.fixed(100))
+                                ],
+                                alignment: .leading,
+                                spacing: 10
+                            ) {
+                                ForEach(self.artSearchResults!, id: \.self) { result in
+                                    Button(action:
+                                    {
+                                        self.setArtwork(value: result.thumb)
+                                        self.isPopoverPresented = false
+                                    }, label: {
+                                        UrlImageView(url: result.thumb)
+                                            .cornerRadius(6)
+                                    })
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                    } else {
+                        Rectangle()
+                            .opacity(0)
+                    }
+
+                    Spacer()
+                }
+
                 Text("Artwork provided by Steam Grid DB")
                     .font(Font.caption)
                     .opacity(0.5)
-
-                if self.searchResults != nil {
-                    ScrollView {
-                        LazyVGrid(
-                            columns: [
-                                GridItem(.fixed(100)),
-                                GridItem(.fixed(100)),
-                                GridItem(.fixed(100)),
-                                GridItem(.fixed(100)),
-                                GridItem(.fixed(100))
-                            ],
-                            alignment: .leading,
-                            spacing: 10
-                        ) {
-                            ForEach(self.searchResults!, id: \.self) { result in
-                                Button(action:
-                                {
-                                    self.setArtwork(value: result.thumb)
-                                    self.isPopoverPresented = false
-                                }, label: {
-                                    UrlImageView(url: result.thumb)
-                                })
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                    .frame(height: 400)
-                } else {
-                    Spacer()
-                        .frame(height: 400)
-                }
+                    .padding(4)
             }
-            .padding(16)
+            .frame(width: 666, height: 350)
+            .onAppear {
+                self.searchTerm = self.game.title
+                self.beginGameSearch()
+            }
         }
-        .frame(height: 150)
     }
 
     func setArtwork(value: String) {
@@ -136,6 +203,8 @@ struct ArtworkSelectorView: View {
             self.game.heroUrl = value
         case .logo:
             self.game.logoUrl = value
+        case .icon:
+            self.game.shortcuts[self.shortcutIndex].iconUrl = value
         }
     }
 }

@@ -69,18 +69,16 @@ struct GamesView: View {
         }
     }
 
-    init(searchTerm: String) {
+    init(searchTerm: String, includeHidden: Bool) {
         self._games = Query(
-            filter: GamesView.gamesPredictate(searchText: searchTerm),
+            filter: GamesView.gamesPredicate(searchText: searchTerm, includeHidden: includeHidden),
             sort: \.title
         )
     }
 
-    static func gamesPredictate(
-        searchText: String
-    ) -> Predicate<Game> {
-        return #Predicate<Game> { game in
-            (!game.hidden)
+    static func gamesPredicate(searchText: String, includeHidden: Bool) -> Predicate<Game> {
+        #Predicate<Game> { game in
+            (!game.hidden || includeHidden)
             &&
             (searchText == "" || game.title.localizedStandardContains(searchText))
         }

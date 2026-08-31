@@ -57,6 +57,10 @@ class SteamGridDbClient: Observable {
         return try await self.get(uri: "heroes/game/\(gameId)?nsfw=false&humor=false&epilepsy=false&limit=50")
     }
 
+    func getIcons(gameId: Int) async throws -> [SteamGridDbObject]? {
+        return try await self.get(uri: "icons/game/\(gameId)?nsfw=false&humor=false&epilepsy=false&limit=50")
+    }
+
     private func get<T: Decodable>(uri: String) async throws -> T? {
         if self.session == nil {
             return nil

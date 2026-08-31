@@ -29,7 +29,9 @@ struct GameCoverView: View {
 
     var body: some View {
         return ZStack {
-            Rectangle().background(.black).opacity(0.001)
+            Rectangle()
+                .background(.black)
+                .opacity(0.001)
 
             VStack(alignment: .leading) {
                 ZStack {
@@ -37,7 +39,9 @@ struct GameCoverView: View {
                         UrlImageView(url: self.game.coverUrl!)
                             .opacity(self.game.foundInScan ? 1.0 : 0.5)
                     } else {
-                        Rectangle().opacity(0).background(.thinMaterial)
+                        Rectangle()
+                            .opacity(0)
+                            .background(.thinMaterial)
                     }
 
                     IconView(iconName: "material-symbols-light:disc-full")
@@ -136,7 +140,7 @@ struct GameCoverView: View {
                     self.gameManager.unHide(game: self.game)
                 }
                 label: {
-                    Label("Put Back", systemImage: "eye")
+                    Label("Show", systemImage: "eye")
                 }
             }
 

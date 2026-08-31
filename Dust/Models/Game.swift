@@ -23,6 +23,7 @@ class Game: Identifiable, Hashable, Comparable {
     var customLaunch: String?
     var foundInScan: Bool = false
     var sortTitle: String = ""
+    var shortcuts: [Shortcut] = []
 
     init(title: String, path: String) {
         self.title = title
@@ -50,6 +51,18 @@ class Game: Identifiable, Hashable, Comparable {
         testGame.logoUrl = "https://cdn2.steamgriddb.com/logo_thumb/6a3b6ffa5dbf8a5abcad2135e5bc77d9.png"
         testGame.heroUrl = "https://cdn2.steamgriddb.com/hero_thumb/442465f5282183631234848d916ce365.jpg"
         return testGame
+    }
+}
+
+@Model
+class Shortcut: Identifiable {
+    var iconUrl: String?
+    var title: String
+    var subTitle: String?
+    var args: String?
+
+    init(title: String) {
+        self.title = title
     }
 }
 
