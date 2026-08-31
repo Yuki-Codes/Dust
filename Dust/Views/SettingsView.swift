@@ -9,55 +9,45 @@ import CachedAsyncImage
 import SwiftData
 import SwiftUI
 
-struct SettingsView: View
-{
+struct SettingsView: View {
     @State
-    private var platformId: UUID?;
-    
+    private var platformId: UUID?
+
     @Environment(\.colorScheme)
-    var colorScheme;
-    
+    var colorScheme
+
     @Environment(\.modelContext)
-    private var modelContext;
-    
+    private var modelContext
+
     @Query
-    var platforms: [Platform];
-    
+    var platforms: [Platform]
+
     @AppStorage("sgdbApiKey")
-    var sgdbApiKey: String = "";
-    
+    var sgdbApiKey: String = ""
+
     @AppStorage("raApiKey")
-    var raApiKey: String = "";
-    
+    var raApiKey: String = ""
+
     @AppStorage("raUserName")
-    var raUserName: String = "";
-    
-    var SelectedPlatform:Platform?
-    {
-        return platforms.first(where:
-        { platform in
-            platform.id == platformId
-        });
+    var raUserName: String = ""
+
+    var selectedPlatform: Platform? {
+        return self.platforms.first(where: { platform in
+            platform.id == self.platformId
+        })
     }
-    
-    var body: some View
-    {
-        TabView
-        {
-            VStack(alignment: .leading)
-            {
-                HStack
-                {
-                    GroupBox
-                    {
-                        List(platforms, selection: $platformId)
-                        { platform in
-                            HStack
-                            {
+
+    var body: some View {
+        TabView {
+            VStack(alignment: .leading) {
+                HStack {
+                    GroupBox {
+                        List(self.platforms, selection: self.$platformId) { platform in
+                            HStack {
                                 IconView(iconName: platform.iconName)
-                                    .frame(width: 14, height: 14);
-                                    
-                                Text(platform.name);
+                                    .frame(width: 14, height: 14)
+
+                                Text(platform.name)
                             }
                         }
                         .padding(.bottom, 24)
@@ -66,126 +56,112 @@ struct SettingsView: View
                         .listStyle(.plain)
                         .overlay(alignment: .bottomLeading, content:
                         {
-                            HStack(spacing: 0)
-                        {
-                            Button(action:AddPlatform)
-                            {
-                                ZStack
-                                {
-                                    Rectangle().opacity(0);
-                                    Image(systemName: "plus");
+                            HStack(spacing: 0) {
+                                Button(action: self.addPlatform) {
+                                    ZStack {
+                                        Rectangle().opacity(0)
+                                        Image(systemName: "plus")
+                                    }
                                 }
-                            }
-                            .frame(width: 22, height: 22);
-                            
-                            Divider().frame(height: 14);
-                            
-                            Button(action:RemovePlatform)
-                            {
-                                ZStack
-                                {
-                                    Rectangle().opacity(0);
-                                    Image(systemName: "minus");
+                                .frame(width: 22, height: 22)
+
+                                Divider().frame(height: 14)
+
+                                Button(action: self.removePlatform) {
+                                    ZStack {
+                                        Rectangle().opacity(0)
+                                        Image(systemName: "minus")
+                                    }
                                 }
+                                .frame(width: 22, height: 22)
                             }
-                            .frame(width: 22, height: 22);
-                        }
-                        .buttonStyle(.borderless)
-                        })
+                            .buttonStyle(.borderless)
+                            })
                     }
                     .formStyle(.grouped)
                     .scrollDisabled(true)
                     .frame(width: 200)
 
-                    if (SelectedPlatform == nil)
-                    {
+                    if self.selectedPlatform == nil {
                         Text("Select a platform").frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                    else
-                    {
-                        PlatformSettingsView(platform: SelectedPlatform!)
+                    } else {
+                        PlatformSettingsView(platform: self.selectedPlatform!)
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     }
                 }
             }
-            .tabItem
-            {
+            .tabItem {
                 Label("Platforms", systemImage: "gamecontroller.fill")
             }
-            
-            VStack(alignment: .leading)
-            {
-                Text("Steam Grid Database").font(.title3).frame(alignment: .leading);
+
+            VStack(alignment: .leading) {
+                Text("Steam Grid Database").font(.title3).frame(alignment: .leading)
+                // swiftlint:disable:next line_length
                 Text("Enter a Steam Grid Database API Key to automatically fetch cover art and metadata for your games.")
                     .font(.caption)
-                    .foregroundStyle(.secondary);
-                
-                Link("Get an API key from the SGDB preferences page.", destination: URL(string: "https://www.steamgriddb.com/profile/preferences/api")!)
-                    .font(.caption);
-                Form
-                {
-                    TextField("API Key", text: $sgdbApiKey);
+                    .foregroundStyle(.secondary)
+
+                Link("Get an API key from the SGDB preferences page.",
+                    destination: URL(string: "https://www.steamgriddb.com/profile/preferences/api")!)
+                    .font(.caption)
+
+                Form {
+                    TextField("API Key", text: self.$sgdbApiKey)
                 }
-                
-                Spacer().frame(height: 32);
-                
-                Text("Retro Achievements").font(.title3).frame(alignment: .leading);
+
+                Spacer()
+                    .frame(height: 32)
+
+                Text("Retro Achievements").font(.title3).frame(alignment: .leading)
                 Text("Enter a Retro Achievements API Key to fetch achievement progress for your games.")
                     .font(.caption)
-                    .foregroundStyle(.secondary);
-                
-                Link("Get an API key from the Retro Achievements settings page.", destination: URL(string: "https://retroachievements.org/settings?tab=applications")!)
-                    .font(.caption);
-                Form
-                {
-                    TextField("User Name", text: $raUserName);
-                    TextField("API Key", text: $raApiKey);
+                    .foregroundStyle(.secondary)
+
+                Link("Get an API key from the Retro Achievements settings page.",
+                    destination: URL(string: "https://retroachievements.org/settings?tab=applications")!)
+                    .font(.caption)
+
+                Form {
+                    TextField("User Name", text: self.$raUserName)
+                    TextField("API Key", text: self.$raApiKey)
                 }
-                
-                Spacer().frame(height: 32);
+
+                Spacer()
+                    .frame(height: 32)
             }
-            .tabItem
-            {
+            .tabItem {
                 Label("Integrations", systemImage: "link")
             }
         }
-        .frame(width: 600).padding(16)
-        
-        .onAppear
-        {
-            self.OnAppear();
+        .frame(width: 600)
+        .padding(16)
+
+        .onAppear {
+            self.platformId = self.platforms.first?.id
         }
     }
-    
-    func OnAppear()
-    {
-        self.platformId = platforms.first?.id;
+
+    func addPlatform() {
+        let platform: Platform = Platform(name: "New Platform", iconName: "line-md:question")
+        self.modelContext.insert(platform)
+        self.platformId = platform.id
     }
-    
-    func AddPlatform()
-    {
-        let platform:Platform = Platform(name: "New Platform", iconName: "line-md:question");
-        self.modelContext.insert(platform);
-        self.platformId = platform.id;
-    }
-    
-    func RemovePlatform()
-    {
-        if (self.SelectedPlatform == nil)
-        {
-            return;
+
+    func removePlatform() {
+        if self.selectedPlatform == nil {
+            return
         }
-        
-        self.modelContext.delete(self.SelectedPlatform!);
-        
-        if (!self.platforms.isEmpty)
-        {
-            self.platformId = self.platforms[0].id;
+
+        self.modelContext.delete(self.selectedPlatform!)
+
+        if !self.platforms.isEmpty {
+            self.platformId = self.platforms[0].id
         }
     }
 }
 
 #Preview
 {
-    SettingsView().withTestPlatforms();
+    SettingsView()
+        .withTestPlatforms()
 }

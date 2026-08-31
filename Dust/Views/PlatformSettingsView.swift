@@ -5,181 +5,152 @@
 //  Created by Yuki Walsh on 2026-08-11.
 //
 
-
 import CachedAsyncImage
 import SwiftData
 import SwiftUI
 
-struct PlatformSettingsView : View
-{
+struct PlatformSettingsView: View {
     @Environment(\.modelContext)
-    private var modelContext;
-    
+    private var modelContext
+
     @Bindable
-    var platform:Platform;
-    
+    var platform: Platform
+
     @State
-    var selectedDirectoryIndex:Int = 0;
-    
+    var selectedDirectoryIndex: Int = 0
+
     @State
-    var argsHelpPopupOpen:Bool = false;
-    
-    var body: some View
-    {
-        Form
-        {
-            TextField("Name", text: $platform.name);
-            
-            IconSelectorView(iconName: $platform.iconName, fallback: platform.name);
-            
-            Picker("Type", selection: $platform.platformType)
-            {
-                ForEach(Platform.PlatformTypes.allCases)
-                { platformType in
-                    Text(String(describing: platformType))
-                    
+    var argsHelpPopupOpen: Bool = false
+
+    var body: some View {
+        Form {
+            TextField("Name", text: self.$platform.name)
+
+            IconSelectorView(iconName: self.$platform.iconName, fallback: self.platform.name)
+
+            Picker("Type", selection: self.$platform.type) {
+                ForEach(Platform.PlatformType.allCases) { type in
+                    Text(String(describing: type))
+
                 }
             }
-            .buttonSizing(.flexible);
-            
-            if (self.platform.platformType == Platform.PlatformTypes.Emulator)
-            {
-                HStack
-                {
-                    TextField("Executable", text: $platform.executablePath)
-                    Button("...")
-                    {
-                        let panel = NSOpenPanel();
-                        panel.allowsMultipleSelection = false;
-                        panel.canChooseDirectories = false;
-                        if panel.runModal() == .OK
-                        {
-                            self.platform.executablePath = panel.url?.path() ?? "";
+            .buttonSizing(.flexible)
+
+            if self.platform.type == Platform.PlatformType.emulator {
+                HStack {
+                    TextField("Executable", text: self.$platform.executablePath)
+                    Button("...") {
+                        let panel = NSOpenPanel()
+                        panel.allowsMultipleSelection = false
+                        panel.canChooseDirectories = false
+                        if panel.runModal() == .OK {
+                            self.platform.executablePath = panel.url?.path() ?? ""
                         }
                     }
                 }
-                
-                HStack
-                {
-                    TextField("Retro Arch Core", text: $platform.retroArchCore ?? "")
-                    Button("...")
-                    {
-                        let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!;
-                        let directoryURL = appSupportURL.appendingPathComponent("RetroArch").appendingPathComponent("cores");
-                        
-                        let panel = NSOpenPanel();
-                        panel.directoryURL = directoryURL;
-                        panel.allowsMultipleSelection = false;
-                        panel.canChooseDirectories = false;
-                        panel.canChooseFiles = true;
-                        if (panel.runModal() == .OK && panel.url != nil)
-                        {
-                            platform.retroArchCore = panel.url!.lastPathComponent;
+
+                HStack {
+                    TextField("Retro Arch Core", text: self.$platform.retroArchCore ?? "")
+                    Button("...") {
+                        let appSupportURL =
+                            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+                        let directoryURL =
+                            appSupportURL.appendingPathComponent("RetroArch").appendingPathComponent("cores")
+
+                        let panel = NSOpenPanel()
+                        panel.directoryURL = directoryURL
+                        panel.allowsMultipleSelection = false
+                        panel.canChooseDirectories = false
+                        panel.canChooseFiles = true
+                        if panel.runModal() == .OK && panel.url != nil {
+                            self.platform.retroArchCore = panel.url!.lastPathComponent
                         }
                     }
                 }
-                
-                HStack
-                {
-                    TextField("Arguments", text: $platform.launchArgs);
+
+                HStack {
+                    TextField("Arguments", text: self.$platform.launchArgs)
                     Image(systemName: "questionmark.circle.fill")
-                    .popover(isPresented: $argsHelpPopupOpen)
-                    {
-                        VStack(alignment: .leading)
-                        {
+                    .popover(isPresented: self.$argsHelpPopupOpen) {
+                        VStack(alignment: .leading) {
                             Text("The arguments to pass to the emulator when launching a game.")
-                                .padding(.bottom, 2);
-                            Text("the following substitutions will be performed:");
-                            Text("{path} will be replaced with the absolute path to the file.");
-                            Text("{file} will be replaced with the name of the file, including extension.");
-                            Text("{title} will be replaced with the game title.");
-                            Text("{core} will be replaced with the retro arch core file.");
-                        }.padding(12);
+                                .padding(.bottom, 2)
+                            Text("the following substitutions will be performed:")
+                            Text("{path} will be replaced with the absolute path to the file.")
+                            Text("{file} will be replaced with the name of the file, including extension.")
+                            Text("{title} will be replaced with the game title.")
+                            Text("{core} will be replaced with the retro arch core file.")
+                        }.padding(12)
                     }
-                    .onHover
-                    { over in
-                        argsHelpPopupOpen = over;
+                    .onHover { over in
+                        self.argsHelpPopupOpen = over
                     }
-                    
                 }
-                .padding(.vertical, 1);
+                .padding(.vertical, 1)
             }
 
-            LabeledContent("Directories")
-            {
-                GroupBox
-                {
-                    List(selection: $selectedDirectoryIndex)
-                    {
-                        ForEach (platform.directories.enumerated(), id: \.offset)
-                        { (index, gameDirectory) in
-                            Text(gameDirectory);
+            LabeledContent("Directories") {
+                GroupBox {
+                    List(selection: self.$selectedDirectoryIndex) {
+                        ForEach(self.platform.directories.enumerated(), id: \.offset) { (_, gameDirectory) in
+                            Text(gameDirectory)
                         }
                     }
                     .padding(.bottom, 24)
                     .padding(.top, -4)
                     .padding(.horizontal, -4)
                     .listStyle(.plain)
-                    .overlay(alignment: .bottomLeading, content:
-                    {
-                        HStack(spacing: 0)
-                        {
-                            Button(action:AddDirectory)
-                            {
-                                ZStack
-                                {
-                                    Rectangle().opacity(0);
-                                    Image(systemName: "plus");
+                    .overlay(alignment: .bottomLeading, content: {
+                        HStack(spacing: 0) {
+                            Button(action: self.addDirectory) {
+                                ZStack {
+                                    Rectangle().opacity(0)
+                                    Image(systemName: "plus")
                                 }
                             }
-                            .frame(width: 22, height: 22);
-                            
-                            Divider().frame(height: 14);
-                            
-                            Button(action:RemoveDirectory)
-                            {
-                                ZStack
-                                {
-                                    Rectangle().opacity(0);
-                                    Image(systemName: "minus");
+                            .frame(width: 22, height: 22)
+
+                            Divider().frame(height: 14)
+
+                            Button(action: self.removeDirectory) {
+                                ZStack {
+                                    Rectangle().opacity(0)
+                                    Image(systemName: "minus")
                                 }
                             }
-                            .frame(width: 22, height: 22);
+                            .frame(width: 22, height: 22)
                         }
                         .buttonStyle(.borderless)
                     })
                 }
-                .frame(height:100)
+                .frame(height: 100)
             }
-            
-            TextField("Search Pattern", text: $platform.searchPattern);
+
+            TextField("Search Pattern", text: self.$platform.searchPattern)
         }
     }
 
-    func AddDirectory()
-    {
-        let panel = NSOpenPanel();
-        panel.allowsMultipleSelection = false;
-        panel.canChooseDirectories = true;
-        panel.canChooseFiles = false;
-        if (panel.runModal() == .OK && panel.url?.path() != nil)
-        {
-            self.platform.directories.append(panel.url!.path());
-            self.selectedDirectoryIndex += 1;
+    func addDirectory() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        if panel.runModal() == .OK && panel.url?.path() != nil {
+            self.platform.directories.append(panel.url!.path())
+            self.selectedDirectoryIndex += 1
         }
     }
-    
-    func RemoveDirectory()
-    {
-        self.platform.directories.remove(at: self.selectedDirectoryIndex);
-        self.selectedDirectoryIndex -= 1;
+
+    func removeDirectory() {
+        self.platform.directories.remove(at: self.selectedDirectoryIndex)
+        self.selectedDirectoryIndex -= 1
     }
 }
 
 #Preview
 {
-    let testPlatform = Platform(name: "MacOS", iconName: "wpf:mac-os");
+    let testPlatform = Platform(name: "MacOS", iconName: "wpf:mac-os")
     PlatformSettingsView(platform: testPlatform)
         .frame(minWidth: 300, minHeight: 250)
-        .padding(16);
+        .padding(16)
 }

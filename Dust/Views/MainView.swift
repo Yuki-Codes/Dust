@@ -9,44 +9,37 @@ import CachedAsyncImage
 import SwiftData
 import SwiftUI
 
-struct MainView: View
-{
+struct MainView: View {
     @Environment(\.colorScheme)
-    var colorScheme;
-    
+    var colorScheme
+
     @Environment(\.modelContext)
-    private var modelContext;
-    
+    private var modelContext
+
     @Environment(Scanner.self)
-    var scanner:Scanner?;
-    
+    var scanner: Scanner?
+
     @Environment(GameManager.self)
-    var gameManager:GameManager;
-    
+    var gameManager: GameManager
+
     @State
-    private var search:String = "";
-    
-    var body: some View
-    {
+    private var search: String = ""
+
+    var body: some View {
         @Bindable
-        var bindableGameManager = gameManager;
-        
-        GamesView(searchTerm:search)
+        var bindableGameManager = self.gameManager
+
+        GamesView(searchTerm: self.search)
             .ignoresSafeArea(edges: .top)
-        
-        .overlay(alignment: .bottomTrailing)
-        {
-            ZStack
-            {
-                ZStack
-                {
-                    HStack
-                    {
-                        ProgressView().scaleEffect(0.75);
-                        VStack(alignment: .leading)
-                        {
-                            Text("Scanning for games");
-                            Text(scanner?.status ?? "No Scanner")
+
+        .overlay(alignment: .bottomTrailing) {
+            ZStack {
+                ZStack {
+                    HStack {
+                        ProgressView().scaleEffect(0.75)
+                        VStack(alignment: .leading) {
+                            Text("Scanning for games")
+                            Text(self.scanner?.status ?? "No Scanner")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .frame(width: 256, alignment: .leading)
@@ -59,48 +52,37 @@ struct MainView: View
                 .cornerRadius(6)
             }
             .padding(16)
-            .opacity(scanner?.isScanning != false ? 1.0 : 0)
-            .animation(.easeInOut(duration: 0.25), value: scanner?.isScanning)
+            .opacity(self.scanner?.isScanning != false ? 1.0 : 0)
+            .animation(.easeInOut(duration: 0.25), value: self.scanner?.isScanning)
         }
-        
-        .sheet(isPresented: $bindableGameManager.isEditingGame)
-        {
-            VStack
-            {
-                EditGameView(game: bindableGameManager.editingGame!);
-                
-                Button("Done")
-                {
-                    gameManager.isEditingGame = false;
+
+        .sheet(isPresented: $bindableGameManager.isEditingGame) {
+            VStack {
+                EditGameView(game: bindableGameManager.editingGame!)
+
+                Button("Done") {
+                    self.gameManager.isEditingGame = false
                 }
             }
             .padding(12)
         }
-        
-        .sheet(isPresented: $bindableGameManager.isPlayingGame)
-        {
-            PlayingGameView(game: bindableGameManager.playingGame!);
+
+        .sheet(isPresented: $bindableGameManager.isPlayingGame) {
+            PlayingGameView(game: bindableGameManager.playingGame!)
         }
-        
-        .toolbar
-        {
+
+        .toolbar {
         }
-        
-        .searchable(text: $search)
-        
-        .onAppear
-        {
-            self.OnAppear();
+
+        .searchable(text: self.$search)
+
+        .onAppear {
+            Services.Scanner.beginScan()
         }
-    }
-    
-    func OnAppear()
-    {
-        Services.Scanner.BeginScan();
     }
 }
 
 #Preview
 {
-    return MainView().withTestPlatforms();
+    return MainView().withTestPlatforms()
 }

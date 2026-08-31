@@ -10,5 +10,14 @@
         "id": "build",
       },
     },
+    {
+      "type": "shell",
+      "label": "Analyze",
+      "command": "rm -r .build/; xcodebuild -scheme 'Dust' build CONFIGURATION_BUILD_DIR=/${workspaceFolder}/.build/ > xcodebuild.log;swiftlint analyze --compiler-log-path xcodebuild.log; rm xcodebuild.log",
+      "problemMatcher": "$gcc",
+      "icon": {
+        "id": "search",
+      },
+    },
   ]
 }

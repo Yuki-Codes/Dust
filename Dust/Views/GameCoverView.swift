@@ -5,182 +5,146 @@
 //  Created by Yuki Walsh on 2026-08-14.
 //
 
-import SwiftUI;
-import SwiftData;
-import CachedAsyncImage;
+import SwiftUI
+import SwiftData
+import CachedAsyncImage
 
-struct GameCoverView: View
-{
-    var game:Game;
-    
-    var coverWidth:Float;
-    
+struct GameCoverView: View {
+    var game: Game
+
+    var coverWidth: Float
+
     @State
-    var popupOpen:Bool = false;
-    
+    var popupOpen: Bool = false
+
     @State
-    var hover:Bool = false;
-    
-    var coverHeight:Float
-    {
-        return (coverWidth / 9) * 14;
+    var hover: Bool = false
+
+    var coverHeight: Float {
+        return (self.coverWidth / 9) * 14
     }
-    
+
     @Environment(GameManager.self)
-    var gameManager:GameManager;
-    
-    var body: some View
-    {
-        ZStack
-        {
+    var gameManager: GameManager
+
+    var body: some View {
+        return ZStack {
             Rectangle().background(.black).opacity(0.001)
-            
-            VStack(alignment: .leading)
-            {
-                ZStack
-                {
-                    if (game.coverUrl != nil)
-                    {
-                        UrlImageView(url:game.coverUrl!)
-                            .opacity(game.foundInScan ? 1.0 : 0.5)
+
+            VStack(alignment: .leading) {
+                ZStack {
+                    if self.game.coverUrl != nil {
+                        UrlImageView(url: self.game.coverUrl!)
+                            .opacity(self.game.foundInScan ? 1.0 : 0.5)
+                    } else {
+                        Rectangle().opacity(0).background(.thinMaterial)
                     }
-                    else
-                    {
-                        Rectangle().opacity(0).background(.thinMaterial);
-                    }
-        
-                    IconView(iconName:"material-symbols-light:disc-full")
-                        .frame(width:48, height:48)
+
+                    IconView(iconName: "material-symbols-light:disc-full")
+                        .frame(width: 48, height: 48)
                         .shadow(color: Color.black, radius: 12)
-                        .opacity(game.foundInScan ? 0.0 : 1.0)
+                        .opacity(self.game.foundInScan ? 0.0 : 1.0)
                 }
                 .cornerRadius(6)
-                .frame(width: CGFloat(coverWidth), height: CGFloat(coverHeight))
+                .frame(width: CGFloat(self.coverWidth), height: CGFloat(self.coverHeight))
                 .shadow(radius: 6)
                 .shadow(color: .black.opacity(self.hover || self.popupOpen ? 0.5 : 0), radius: 12)
                 .scaleEffect(self.hover || self.popupOpen ? 1.05 : 1)
                 .animation(.easeInOut(duration: 0.15), value: self.hover)
-                
-                .popover(isPresented: $popupOpen, arrowEdge: .trailing)
-                {
-                    GameInfoView(game:game);
+
+                .popover(isPresented: self.$popupOpen, arrowEdge: .trailing) {
+                    GameInfoView(game: self.game)
                 }
-                
-                VStack(alignment: .leading, spacing: 2)
-                {
-                    Text(game.title).lineLimit(2);
-                    
-                    if (game.platform != nil)
-                    {
-                        HStack(alignment: .center, spacing: 2)
-                        {
-                            IconView(iconName: game.platform!.iconName)
-                                .frame(width:14, height: 14)
-                            
-                            Text(game.platform!.name)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(self.game.title).lineLimit(2)
+
+                    if self.game.platform != nil {
+                        HStack(alignment: .center, spacing: 2) {
+                            IconView(iconName: self.game.platform!.iconName)
+                                .frame(width: 14, height: 14)
+
+                            Text(self.game.platform!.name)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                                .lineLimit(1);
-                                
-                            Spacer();
-                                
-                            if (game.releaseYear != nil)
-                            {
-                                Text(game.releaseYear!)
+                                .lineLimit(1)
+
+                            Spacer()
+
+                            if self.game.releaseYear != nil {
+                                Text(self.game.releaseYear!)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
-                                    .lineLimit(1);
+                                    .lineLimit(1)
                             }
                         }
                     }
-                    
-                    Spacer();
+
+                    Spacer()
                 }
             }
         }
-        .frame(width: CGFloat(coverWidth))
+        .frame(width: CGFloat(self.coverWidth))
         .padding(.bottom, 16)
-        
-        .onHover
-        { over in
-            
-            if(!gameManager.isEditingGame && !gameManager.isPlayingGame)
-            {
-                self.hover = over;
+
+        .onHover { over in
+            if !self.gameManager.isEditingGame && !self.gameManager.isPlayingGame {
+                self.hover = over
             }
         }
-        .onTapGesture
-        {
-            self.popupOpen = true;
+        .onTapGesture {
+            self.popupOpen = true
         }
-        
-        .contextMenu
-        {
-            if (game.platform != nil)
-            {
-                Button
-                {
-                    gameManager.Launch(game: game);
+
+        .contextMenu {
+            if self.game.platform != nil {
+                Button {
+                    self.gameManager.launch(game: self.game)
                 }
-                label:
-                {
+                label: {
                     Label("Play", systemImage: "play")
                 }
-                
-                Divider();
-                
-                Button
-                {
-                    gameManager.Edit(game: game);
+
+                Divider()
+
+                Button {
+                    self.gameManager.edit(game: self.game)
                 }
-                label:
-                {
+                label: {
                     Label("Edit", systemImage: "rectangle.and.pencil.and.ellipsis")
                 }
-                
-                Button
-                {
-                    gameManager.OpenDir(game: game);
+
+                Button {
+                    self.gameManager.openDir(game: self.game)
                 }
-                label:
-                {
+                label: {
                     Label("Open Location", systemImage: "folder")
                 }
-                
-                Divider();
+
+                Divider()
             }
-            
-            if (!game.hidden)
-            {
-                Button()
-                {
-                    gameManager.Hide(game: game);
+
+            if !self.game.hidden {
+                Button {
+                    self.gameManager.hide(game: self.game)
                 }
-                label:
-                {
+                label: {
                     Label("Hide", systemImage: "eye.slash")
                 }
-            }
-            else
-            {
-                Button()
-                {
-                    gameManager.UnHide(game: game);
+            } else {
+                Button {
+                    self.gameManager.unHide(game: self.game)
                 }
-                label:
-                {
+                label: {
                     Label("Put Back", systemImage: "eye")
                 }
             }
-            
-            if (!game.foundInScan)
-            {
-                Button()
-                {
-                    gameManager.Delete(game: game);
+
+            if !self.game.foundInScan {
+                Button {
+                    self.gameManager.delete(game: self.game)
                 }
-                label:
-                {
+                label: {
                     Label("Delete", systemImage: "trash")
                 }
             }

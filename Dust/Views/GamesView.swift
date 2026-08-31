@@ -5,45 +5,38 @@
 //  Created by Yuki Walsh on 2026-08-11.
 //
 
-import SwiftUI;
-import SwiftData;
-import CachedAsyncImage;
+import SwiftUI
+import SwiftData
+import CachedAsyncImage
 
-struct GamesView: View
-{
+struct GamesView: View {
     @Environment(\.modelContext)
-    private var modelContext;
-    
+    private var modelContext
+
     @Environment(GameManager.self)
-    var gameManager:GameManager;
-    
+    var gameManager: GameManager
+
     @Environment(\.colorScheme)
-    var colorScheme;
-    
+    var colorScheme
+
     @Query
-    var games: [Game];
-    
+    var games: [Game]
+
     @State
-    var hover: Game? = nil;
-    
-    var coverWidth:Float = 128;
-    
-    var body: some View
-    {
-        ZStack
-        {
-            ForEach(self.games)
-            { game in
-                if (game.heroUrl != nil)
-                {
-                    CachedAsyncImage(url: URL(string: game.heroUrl!))
-                    { phase in
-                        switch phase
-                        {
+    var hover: Game?
+
+    var coverWidth: Float = 128
+
+    var body: some View {
+        ZStack {
+            ForEach(self.games) { game in
+                if game.heroUrl != nil {
+                    CachedAsyncImage(url: URL(string: game.heroUrl!)) { phase in
+                        switch phase {
                         case .success(let image):
-                            image.resizable();
+                            image.resizable()
                         default:
-                            Rectangle();
+                            Rectangle()
                         }
                     }
                     .opacity(self.hover == game ? 1.0 : 0)
@@ -52,26 +45,18 @@ struct GamesView: View
                     .padding(-200)
                 }
             }
-            
-            ScrollView
-            {
-                LazyVGrid(columns: [.init(.adaptive(minimum: CGFloat(coverWidth + 16)))])
-                {
-                    ForEach(self.games.sorted())
-                    { game in
-                        GameCoverView(game:game, coverWidth: coverWidth)
-                        .onHover
-                        { over in
-                            
-                            if (!gameManager.isEditingGame && !gameManager.isPlayingGame)
-                            {
-                                if (over)
-                                {
-                                    self.hover = game;
-                                }
-                                else if(self.hover == game)
-                                {
-                                    self.hover = nil;
+
+            ScrollView {
+                LazyVGrid(columns: [.init(.adaptive(minimum: CGFloat(self.coverWidth + 16)))]) {
+                    ForEach(self.games.sorted()) { game in
+                        GameCoverView(game: game, coverWidth: self.coverWidth)
+                        .onHover { over in
+
+                            if !self.gameManager.isEditingGame && !self.gameManager.isPlayingGame {
+                                if over {
+                                    self.hover = game
+                                } else if self.hover == game {
+                                    self.hover = nil
                                 }
                             }
                         }
@@ -83,22 +68,18 @@ struct GamesView: View
             .background(.regularMaterial)
         }
     }
-    
-    init(searchTerm:String)
-    {
-        _games = Query(
-            filter: GamesView.GamesPredictate(searchText:searchTerm),
+
+    init(searchTerm: String) {
+        self._games = Query(
+            filter: GamesView.gamesPredictate(searchText: searchTerm),
             sort: \.title
         )
     }
-    
-    
-    static func GamesPredictate(
+
+    static func gamesPredictate(
         searchText: String
-    ) -> Predicate<Game>
-    {
-        return #Predicate<Game>
-        { game in
+    ) -> Predicate<Game> {
+        return #Predicate<Game> { game in
             (!game.hidden)
             &&
             (searchText == "" || game.title.localizedStandardContains(searchText))

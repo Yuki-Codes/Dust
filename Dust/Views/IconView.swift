@@ -8,39 +8,31 @@
 import SwiftUI
 import CachedAsyncImage
 
-struct IconView: View
-{
-    var iconName:String;
-    
+struct IconView: View {
+    var iconName: String
+
     @Environment(\.colorScheme)
-    var colorScheme;
-    
+    var colorScheme
+
     @Environment(IconifyClient.self)
-    var iconifyClient:IconifyClient;
-    
-    var iconUrl:URL?
-    {
-        return iconifyClient.GetIconUrl(name: self.iconName);
+    var iconifyClient: IconifyClient
+
+    var iconUrl: URL? {
+        return self.iconifyClient.getIconUrl(name: self.iconName)
     }
-    
-    var body: some View
-    {
-        CachedAsyncImage(url: self.iconUrl)
-        { phase in
-            switch phase
-            {
+
+    var body: some View {
+        CachedAsyncImage(url: self.iconUrl) { phase in
+            switch phase {
             case .success(let image):
-                if colorScheme == ColorScheme.dark
-                {
-                    image.resizable().colorInvert();
+                if self.colorScheme == ColorScheme.dark {
+                    image.resizable().colorInvert()
+                } else {
+                    image.resizable()
                 }
-                else
-                {
-                    image.resizable();
-                }
-                
+
             default:
-                ProgressView().scaleEffect(0.5);
+                ProgressView().scaleEffect(0.5)
             }
         }
     }
