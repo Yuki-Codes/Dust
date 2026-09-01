@@ -15,6 +15,7 @@ class GameManager {
 
     var isPlayingGame: Bool = false
     var playingGame: Game?
+    var playingConfig: Configuration?
 
     init() {
     }
@@ -24,37 +25,35 @@ class GameManager {
             return
         }
 
-        var proc: Process?
+        playingConfig = configuration
 
-        if game.platform!.type == .applications {
-            proc = Shell.execute("open -n -W \"\(game.path)\"")
-        } else if game.platform!.type == .emulator {
-            if game.platform!.executablePath == "" {
-                return
-            }
+        var executable: String = game.path
 
-            var args = game.platform!.launchArgs
-
-            if configuration.launchArgs != nil {
-                args = configuration.launchArgs!
-            }
-
-            let fileName = (game.path as NSString).lastPathComponent
-            let directory = game.path.replacingOccurrences(of: fileName, with: "")
-            let directoryName = (directory as NSString).lastPathComponent
-
-            args = args.replacingOccurrences(of: "{path}", with: "\"\(game.path)\"")
-            args = args.replacingOccurrences(of: "{file}", with: "\"\(fileName)\"")
-            args = args.replacingOccurrences(of: "{title}", with: "\"\(configuration.title)\"")
-            args = args.replacingOccurrences(of: "{directory}", with: "\"\(directory)\"")
-            args = args.replacingOccurrences(of: "{directoryName}", with: "\"\(directoryName)\"")
-
-            if game.platform!.retroArchCore != nil && game.platform!.retroArchCore != "" {
-                args = args.replacingOccurrences(of: "{core}", with: "\"\(game.platform!.retroArchCore!)\"")
-            }
-
-            proc = Shell.execute("open -n -W \"\(game.platform!.executablePath)\" --args \(args)")
+        if game.platform!.type == .emulator {
+            executable = game.platform!.executablePath
         }
+
+        var args = game.platform!.launchArgs
+
+        if configuration.launchArgs != nil {
+            args = configuration.launchArgs!
+        }
+
+        let fileName = (game.path as NSString).lastPathComponent
+        let directory = game.path.replacingOccurrences(of: fileName, with: "")
+        let directoryName = (directory as NSString).lastPathComponent
+
+        args = args.replacingOccurrences(of: "{path}", with: "\"\(game.path)\"")
+        args = args.replacingOccurrences(of: "{file}", with: "\"\(fileName)\"")
+        args = args.replacingOccurrences(of: "{title}", with: "\"\(configuration.title)\"")
+        args = args.replacingOccurrences(of: "{directory}", with: "\"\(directory)\"")
+        args = args.replacingOccurrences(of: "{directoryName}", with: "\"\(directoryName)\"")
+
+        if game.platform!.retroArchCore != nil && game.platform!.retroArchCore != "" {
+            args = args.replacingOccurrences(of: "{core}", with: "\"\(game.platform!.retroArchCore!)\"")
+        }
+
+        var proc: Process? = Shell.execute("open -n -W \"\(executable)\" --args \(args)")
 
         if proc != nil {
             self.beginWatching(game: game, process: proc!)
@@ -107,5 +106,6 @@ class GameManager {
 
         self.isPlayingGame = false
         self.playingGame = nil
+        self.playingConfig = nil
     }
 }

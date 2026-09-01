@@ -15,6 +15,9 @@ struct GameInfoView: View {
     @Environment(GameManager.self)
     var gameManager: GameManager
 
+    @State
+    var hover: Configuration?
+
     var body: some View {
         ZStack {
             VStack {
@@ -22,7 +25,7 @@ struct GameInfoView: View {
                     UrlImageView(url: self.game.defaultConfiguration().logoUrl!)
                         .padding(.horizontal, 16)
                         .padding(.top, 16)
-                        .frame(minHeight: 64, maxHeight: 200)
+                        .frame(minHeight: 64, maxHeight: 128)
                 } else {
                     Text(self.game.defaultConfiguration().title)
                         .font(.title)
@@ -40,10 +43,20 @@ struct GameInfoView: View {
                             label: {
                                 HStack {
 
-                                    if configuration.iconUrl != nil {
-                                        UrlImageView(url: configuration.iconUrl!)
-                                            .frame(width: 48, height: 48)
-                                            .cornerRadius(6)
+                                    ZStack {
+                                        if configuration.iconUrl != nil {
+                                            UrlImageView(url: configuration.iconUrl!)
+                                                .frame(width: 48, height: 48)
+                                                .background(.thinMaterial)
+                                                .cornerRadius(6)
+                                        }
+
+                                        Image(systemName: "play.fill")
+                                            .resizable()
+                                            .frame(width: 28, height: 28)
+                                            .opacity(self.hover == configuration ? 0.9 : 0.0)
+                                            .shadow(color: Color.black, radius: 12)
+                                            .animation(.easeInOut(duration: 0.25), value: self.hover)
                                     }
 
                                     VStack(alignment: .leading) {
@@ -62,6 +75,13 @@ struct GameInfoView: View {
                                     Spacer()
                                 }
                             })
+                            .onHover { over in
+                                if over {
+                                    self.hover = configuration
+                                } else if self.hover == configuration {
+                                    self.hover = nil
+                                }
+                            }
                         }
                     }
 

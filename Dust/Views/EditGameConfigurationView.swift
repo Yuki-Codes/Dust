@@ -77,7 +77,7 @@ struct EditGameConfigurationView: View {
                             .padding(4)
                             .padding(.bottom, 8)
                     }
-                    .frame(width: 200, height: 350)
+                    .frame(width: 350, height: 450)
                     .onAppear {
                         self.beginGameSearch()
                     }

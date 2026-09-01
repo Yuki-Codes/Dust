@@ -72,7 +72,7 @@ struct MainView: View {
         }
 
         .sheet(isPresented: $bindableGameManager.isPlayingGame) {
-            PlayingGameView(game: bindableGameManager.playingGame!)
+            PlayingGameView(game: bindableGameManager.playingGame!, config: bindableGameManager.playingConfig!)
         }
 
         .toolbar {
