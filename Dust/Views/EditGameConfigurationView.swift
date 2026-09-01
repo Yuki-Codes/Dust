@@ -83,15 +83,29 @@ struct EditGameConfigurationView: View {
                     }
                 }
 
+                // Text("Pos: \(self.configuration.position)")
+
+                if self.configuration.position == -1 {
+                    Toggle("Include in launch list", isOn: self.$configuration.canLaunch)
+                        .toggleStyle(.checkbox)
+                }
+
                 TextField("Display Title", text: self.$configuration.title)
-                TextField("Sort Title", text: self.$configuration.sortTitle)
+
+                if self.configuration.position == -1 {
+                    TextField("Sort Title", text: self.$configuration.sortTitle)
+                }
+
                 TextField("Release Year", text: self.$configuration.releaseYear ?? "")
 
                 HStack {
-                    ArtworkSelectorView(
-                        artUrl: self.$configuration.coverUrl,
-                        type: .cover,
-                        searchTerm: self.$searchTerm)
+                    // Only the default config gets a cover.
+                    if self.configuration.position == -1 {
+                        ArtworkSelectorView(
+                            artUrl: self.$configuration.coverUrl,
+                            type: .cover,
+                            searchTerm: self.$searchTerm)
+                    }
 
                     ArtworkSelectorView(
                         artUrl: self.$configuration.logoUrl,
@@ -103,13 +117,17 @@ struct EditGameConfigurationView: View {
                         type: .hero,
                         searchTerm: self.$searchTerm)
 
-                    ArtworkSelectorView(
-                        artUrl: self.$configuration.iconUrl,
-                        type: .icon,
-                        searchTerm: self.$searchTerm)
+                    if self.configuration.canLaunch {
+                        ArtworkSelectorView(
+                            artUrl: self.$configuration.iconUrl,
+                            type: .icon,
+                            searchTerm: self.$searchTerm)
+                    }
                 }
 
-                TextField("Arguments", text: self.$configuration.launchArgs ?? "")
+                if self.configuration.canLaunch {
+                    TextField("Arguments", text: self.$configuration.launchArgs ?? "")
+                }
             }
 
         }

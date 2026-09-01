@@ -19,6 +19,9 @@ struct EditGameView: View {
     @State
     var selectedConfiguration: Configuration
 
+    @State
+    var searchTerm: String = ""
+
     init(game: Game) {
         self.game = game
         self.selectedConfiguration = game.defaultConfiguration()
@@ -28,11 +31,42 @@ struct EditGameView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
+                /*Text("Library")
                 HStack {
+                    Form {
+                        TextField("Title", text: self.$game.title)
+                        TextField("Sort Title", text: self.$game.sortTitle)
+                        TextField("Release Year", text: self.$game.releaseYear ?? "")
+                        Spacer()
+                    }
 
+                    ArtworkSelectorView(
+                        artUrl: self.$game.coverUrl,
+                        type: .cover,
+                        searchTerm: self.$searchTerm)
+                        .frame(width: 120)
+
+                    ArtworkSelectorView(
+                        artUrl: self.$game.logoUrl,
+                        type: .logo,
+                        searchTerm: self.$searchTerm)
+                        .frame(width: 150)
+                }
+                .frame(height: 150)
+
+                Divider()
+
+                Text("Launch Configurations")*/
+
+                HStack {
                     GroupBox {
                         List(self.game.configurations.sorted(), id: \.position, selection: self.$selectedConfigurationId) { configuration in
                             HStack {
+
+                                if configuration.position == -1 {
+                                    Image(systemName: "star.fill")
+                                }
+
                                 Text(configuration.title)
                                     .lineLimit(1)
                             }
@@ -67,6 +101,7 @@ struct EditGameView: View {
                                     }
                                 }
                                 .frame(width: 22, height: 22)
+                                .disabled(self.selectedConfigurationId == -1)
 
                                 Spacer()
 
@@ -78,6 +113,7 @@ struct EditGameView: View {
                                     }
                                 }
                                 .frame(width: 22, height: 22)
+                                .disabled(self.selectedConfigurationId == -1)
 
                                 Divider().frame(height: 14)
 
@@ -89,6 +125,7 @@ struct EditGameView: View {
                                     }
                                 }
                                 .frame(width: 22, height: 22)
+                                .disabled(self.selectedConfigurationId == -1)
                             }
                             .buttonStyle(.borderless)
                         })
@@ -124,10 +161,11 @@ struct EditGameView: View {
             }
         }
 
-        .frame(width: 750, height: 300)
+        .frame(width: 600, height: 350)
     }
 
     func addConfiguration() {
+
         let config: Configuration = Configuration()
         config.title = "New Configuration"
         config.position = self.game.configurations.count
@@ -141,13 +179,24 @@ struct EditGameView: View {
             return
         }
 
+        // Cant remove the default config
+        if self.selectedConfiguration.position == -1 {
+            return
+        }
+
         let fromIndex: Int = self.game.configurations.firstIndex(of: self.selectedConfiguration)!
         self.game.configurations.remove(at: fromIndex)
-        self.selectedConfigurationId = self.game.configurations[fromIndex - 1].position
         setPositions()
+
+        self.selectedConfigurationId = -1
     }
 
     func moveConfigurationUp() {
+        // Cant move the default config
+        if self.selectedConfiguration.position == -1 {
+            return
+        }
+
         let config: Configuration = self.selectedConfiguration
         let targetPosition: Int = config.position - 1
 
@@ -165,6 +214,11 @@ struct EditGameView: View {
     }
 
     func moveConfigurationDown() {
+        // Cant move the default config
+        if self.selectedConfiguration.position == -1 {
+            return
+        }
+
         let config: Configuration = self.selectedConfiguration
         let targetPosition: Int = config.position + 1
         for otherConfig in self.game.configurations where otherConfig.position <= targetPosition {
@@ -179,6 +233,10 @@ struct EditGameView: View {
     func setPositions() {
         var index: Int = 0
         for config in self.game.configurations.sorted() {
+            if config.position == -1 {
+                continue
+            }
+
             config.position = index
             index += 1
         }

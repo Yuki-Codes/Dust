@@ -66,7 +66,7 @@ struct GameCoverView: View {
                     if self.game.platform != nil {
                         HStack(alignment: .center, spacing: 2) {
                             IconView(iconName: self.game.platform!.iconName)
-                                .frame(width: 14, height: 14)
+                                .frame(width: 10, height: 10)
 
                             Text(self.game.platform!.name)
                                 .font(.caption)

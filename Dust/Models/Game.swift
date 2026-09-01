@@ -19,6 +19,7 @@ class Configuration: Identifiable, Comparable {
     var launchArgs: String?
     var sortTitle: String = ""
     var position: Int = 0
+    var canLaunch: Bool = true
 
     init() {
     }
@@ -38,6 +39,8 @@ class Game: Identifiable, Hashable, Comparable {
 
     init(path: String, defaultConfiguration: Configuration) {
         self.path = path
+
+        defaultConfiguration.position = -1;
         self.configurations.append(defaultConfiguration)
     }
 
@@ -57,6 +60,14 @@ class Game: Identifiable, Hashable, Comparable {
     }
 
     func defaultConfiguration() -> Configuration {
-        return self.configurations[0]
+        for config in self.configurations where config.position == -1 {
+            return config
+        }
+
+        let config: Configuration = Configuration()
+        config.title = "Default"
+        config.position = -1
+        self.configurations.append(config)
+        return config
     }
 }
