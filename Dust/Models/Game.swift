@@ -9,79 +9,54 @@ import SwiftData
 import SwiftUI
 
 @Model
-class Game: Identifiable, Hashable, Comparable {
-    var title: String
-    var path: String
-    var sgdbId: Int?
-    var raId: Int?
+class Configuration: Identifiable, Comparable {
+    var title: String = ""
+    var releaseYear: String?
     var coverUrl: String?
     var logoUrl: String?
-    var releaseYear: String?
-    var platform: Platform?
+    var iconUrl: String?
     var heroUrl: String?
-    var hidden: Bool = false
-    var customLaunch: String?
-    var foundInScan: Bool = false
+    var launchArgs: String?
     var sortTitle: String = ""
-    var shortcuts: [Shortcut] = []
+    var position: Int = 0
 
-    init(title: String, path: String) {
-        self.title = title
+    init() {
+    }
+
+    static func < (lhs: Configuration, rhs: Configuration) -> Bool {
+        return lhs.position < rhs.position
+    }
+}
+
+@Model
+class Game: Identifiable, Hashable, Comparable {
+    var path: String
+    var platform: Platform?
+    var hidden: Bool = false
+    var foundInScan: Bool = false
+    var configurations: [Configuration] = []
+
+    init(path: String, defaultConfiguration: Configuration) {
         self.path = path
+        self.configurations.append(defaultConfiguration)
     }
 
     static func < (lhs: Game, rhs: Game) -> Bool {
-        var lTitle: String = lhs.sortTitle
+
+        var lTitle: String = lhs.defaultConfiguration().sortTitle
         if lTitle == "" {
-            lTitle = lhs.title
+            lTitle = lhs.defaultConfiguration().title
         }
 
-        var rTitle: String = rhs.sortTitle
+        var rTitle: String = rhs.defaultConfiguration().sortTitle
         if rTitle == "" {
-            rTitle = rhs.title
+            rTitle = rhs.defaultConfiguration().title
         }
 
         return lTitle < rTitle
     }
 
-    public static func testGame(index: Int = 0) -> Game {
-        let testGame: Game = Game(title: "Doom \(index)", path: "test")
-        testGame.sgdbId = 2460
-        testGame.coverUrl = "https://cdn2.steamgriddb.com/grid/ef58f7ffe086514aa0164c7fc4f6cea8.png"
-        testGame.logoUrl = "https://cdn2.steamgriddb.com/logo_thumb/6a3b6ffa5dbf8a5abcad2135e5bc77d9.png"
-        testGame.heroUrl = "https://cdn2.steamgriddb.com/hero_thumb/442465f5282183631234848d916ce365.jpg"
-        return testGame
-    }
-}
-
-@Model
-class Shortcut: Identifiable {
-    var iconUrl: String?
-    var title: String
-    var subTitle: String?
-    var args: String?
-
-    init(title: String) {
-        self.title = title
-    }
-}
-
-extension View {
-    func withTestGames(count: Int = 10) -> any View {
-        let container: ModelContainer
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let schema = Schema(Game.self)
-
-        do {
-            container = try ModelContainer(for: schema, configurations: config)
-
-            for index in stride(from: 0, to: count, by: 1) {
-                container.mainContext.insert(Game.testGame(index: index))
-            }
-        } catch {
-            fatalError("The preview data couldn't be created")
-        }
-
-        return self.modelContainer(container)
+    func defaultConfiguration() -> Configuration {
+        return self.configurations[0]
     }
 }

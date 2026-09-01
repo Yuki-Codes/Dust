@@ -30,8 +30,8 @@ struct GamesView: View {
     var body: some View {
         ZStack {
             ForEach(self.games) { game in
-                if game.heroUrl != nil {
-                    CachedAsyncImage(url: URL(string: game.heroUrl!)) { phase in
+                if game.defaultConfiguration().heroUrl != nil {
+                    CachedAsyncImage(url: URL(string: game.defaultConfiguration().heroUrl!)) { phase in
                         switch phase {
                         case .success(let image):
                             image.resizable()
@@ -52,7 +52,7 @@ struct GamesView: View {
                         GameCoverView(game: game, coverWidth: self.coverWidth)
                         .onHover { over in
 
-                            if !self.gameManager.isEditingGame && !self.gameManager.isPlayingGame {
+                            if !self.gameManager.isPlayingGame {
                                 if over {
                                     self.hover = game
                                 } else if self.hover == game {
@@ -72,15 +72,15 @@ struct GamesView: View {
     init(searchTerm: String, includeHidden: Bool) {
         self._games = Query(
             filter: GamesView.gamesPredicate(searchText: searchTerm, includeHidden: includeHidden),
-            sort: \.title
+            // sort: \.defaultConfiguration().title
         )
     }
 
     static func gamesPredicate(searchText: String, includeHidden: Bool) -> Predicate<Game> {
         #Predicate<Game> { game in
             (!game.hidden || includeHidden)
-            &&
-            (searchText == "" || game.title.localizedStandardContains(searchText))
+            // &&
+            // (searchText == "" || game.defaultConfiguration().title.localizedStandardContains(searchText))
         }
     }
 }

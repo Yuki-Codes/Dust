@@ -34,27 +34,6 @@ class Scanner {
         self.isScanning = false
     }
 
-    func beginGetMetadata(game: Game, force: Bool) {
-        _ = Task {
-            return await self.getMetadataSafe(game: game, force: force)
-        }
-    }
-
-    private func getMetadataSafe(game: Game, force: Bool) async {
-        if self.isScanning {
-            return
-        }
-
-        self.isScanning = true
-        do {
-            try await self.getMetadata(game: game, force: force)
-        } catch {
-            print(error)
-        }
-
-        self.isScanning = false
-    }
-
     private func scan() async throws {
         let games: [Game] = try Services.Container.mainContext.fetch(FetchDescriptor<Game>())
         for game in games {
@@ -123,87 +102,43 @@ class Scanner {
 
         // not ideal, but fast enough for now.
         let games: [Game] = try Services.Container.mainContext.fetch(FetchDescriptor<Game>())
-        var existingGame: Game?
-        for game in games where game.path == path {
-            game.path = path
-            existingGame = game
+        var game: Game?
+        for existingGame in games where existingGame.path == path {
+            game = existingGame
             break
         }
 
         // Try get SGDB game
-        if existingGame == nil && Services.SgdbClient.connected {
+        if game == nil && Services.SgdbClient.connected {
             let results = try await Services.SgdbClient.search(term: fileName)
 
             if results != nil && !results!.isEmpty {
                 let sgdbGame = results![0]
                 print("Found: \"\(sgdbGame.name)\" for \"\(fileName)\"")
 
-                existingGame = Game(title: sgdbGame.name, path: path)
-                existingGame!.sgdbId = sgdbGame.id
-                existingGame!.platform = platform
+                let config: Configuration = Configuration()
+                await Services.SgdbClient.importMetadata(sgdbGame: sgdbGame, config: config)
+
+                game = Game(path: path, defaultConfiguration: config)
+                game!.platform = platform
 
                 // save
-                Services.Container.mainContext.insert(existingGame!)
+                Services.Container.mainContext.insert(game!)
             }
         }
 
         // fallback to direct game
-        if existingGame == nil {
-            existingGame = Game(title: fileName, path: path)
-            existingGame!.platform = platform
+        if game == nil {
+
+            var config: Configuration = Configuration()
+            config.title = fileName
+
+            game = Game(path: path, defaultConfiguration: config)
+            game!.platform = platform
         }
 
-        // automatic metadata update
-        if existingGame != nil {
-            existingGame?.foundInScan = true
-            try await self.getMetadata(game: existingGame!, force: false)
-        }
-    }
-
-    private func getMetadata(game: Game, force: Bool) async throws {
-        // Don't bother updating games that are hidden.
-        if game.hidden {
-            return
-        }
-
-        if Services.SgdbClient.connected == true && game.sgdbId != nil {
-            try await self.updateSgdbGame(game: game, force: force)
-        }
-    }
-
-    private func updateSgdbGame(game: Game, force: Bool) async throws {
-        let updataMetadata = force || game.title == "" || game.releaseYear == nil
-        if updataMetadata {
-            let sgdbGame = try await Services.SgdbClient.getGame(id: game.sgdbId)
-
-            if force || game.title == "" {
-                game.title = sgdbGame!.name
-            }
-
-            if sgdbGame!.release_date != nil && (force || game.releaseYear == nil) {
-                game.releaseYear = sgdbGame!.release_date!.formatted(.dateTime.year())
-            }
-        }
-
-        if force || game.coverUrl == nil {
-            let grids: [SteamGridDbObject]? = try await Services.SgdbClient.getGrids(gameId: game.sgdbId!)
-            if grids != nil && !grids!.isEmpty {
-                game.coverUrl = grids![0].thumb
-            }
-        }
-
-        if force || game.logoUrl == nil {
-            let logos: [SteamGridDbObject]? = try await Services.SgdbClient.getLogos(gameId: game.sgdbId!)
-            if logos != nil && !logos!.isEmpty {
-                game.logoUrl = logos![0].thumb
-            }
-        }
-
-        if force || game.heroUrl == nil {
-            let heroes: [SteamGridDbObject]? = try await Services.SgdbClient.getHeroes(gameId: game.sgdbId!)
-            if heroes != nil && !heroes!.isEmpty {
-                game.heroUrl = heroes![0].thumb
-            }
+        if game != nil {
+            game?.foundInScan = true
         }
     }
 }

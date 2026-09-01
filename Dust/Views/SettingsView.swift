@@ -25,12 +25,6 @@ struct SettingsView: View {
     @AppStorage("sgdbApiKey")
     var sgdbApiKey: String = ""
 
-    @AppStorage("raApiKey")
-    var raApiKey: String = ""
-
-    @AppStorage("raUserName")
-    var raUserName: String = ""
-
     var selectedPlatform: Platform? {
         return self.platforms.first(where: { platform in
             platform.id == self.platformId
@@ -116,15 +110,6 @@ struct SettingsView: View {
                 Text("Enter a Retro Achievements API Key to fetch achievement progress for your games.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-
-                Link("Get an API key from the Retro Achievements settings page.",
-                    destination: URL(string: "https://retroachievements.org/settings?tab=applications")!)
-                    .font(.caption)
-
-                Form {
-                    TextField("User Name", text: self.$raUserName)
-                    TextField("API Key", text: self.$raApiKey)
-                }
 
                 Spacer()
                     .frame(height: 32)

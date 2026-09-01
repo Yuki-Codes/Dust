@@ -32,6 +32,50 @@ class SteamGridDbClient: Observable {
         }
     }
 
+    func importMetadata(sgdbGame: SteamGridDbGame, config: Configuration) async {
+        config.title = sgdbGame.name
+
+        if sgdbGame.release_date != nil {
+            config.releaseYear = sgdbGame.release_date!.formatted(.dateTime.year())
+        }
+
+        do {
+            let grids: [SteamGridDbObject]? = try await Services.SgdbClient.getGrids(gameId: sgdbGame.id)
+            if grids != nil && !grids!.isEmpty {
+                config.coverUrl = grids![0].thumb
+            }
+        } catch {
+            print(error)
+        }
+
+        do {
+            let logos: [SteamGridDbObject]? = try await Services.SgdbClient.getLogos(gameId: sgdbGame.id)
+            if logos != nil && !logos!.isEmpty {
+                config.logoUrl = logos![0].thumb
+            }
+        } catch {
+            print(error)
+        }
+
+        do {
+            let heroes: [SteamGridDbObject]? = try await Services.SgdbClient.getHeroes(gameId: sgdbGame.id)
+            if heroes != nil && !heroes!.isEmpty {
+                config.heroUrl = heroes![0].thumb
+            }
+        } catch {
+            print(error)
+        }
+
+        do {
+            let icons: [SteamGridDbObject]? = try await Services.SgdbClient.getIcons(gameId: sgdbGame.id)
+            if icons != nil && !icons!.isEmpty {
+                config.iconUrl = icons![0].thumb
+            }
+        } catch {
+            print(error)
+        }
+    }
+
     func search(term: String) async throws -> [SteamGridDbGame]? {
         let escapedTerm = term.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         if escapedTerm == nil {

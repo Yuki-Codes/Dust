@@ -17,20 +17,20 @@ struct GameInfoView: View {
 
     var body: some View {
         ZStack {
-            if self.game.coverUrl != nil {
-                UrlImageView(url: self.game.coverUrl!)
+            if self.game.defaultConfiguration().coverUrl != nil {
+                UrlImageView(url: self.game.defaultConfiguration().coverUrl!)
                     .ignoresSafeArea()
                     .padding(-200)
             }
 
             VStack {
-                if self.game.logoUrl != nil {
-                    UrlImageView(url: self.game.logoUrl!)
+                if self.game.defaultConfiguration().logoUrl != nil {
+                    UrlImageView(url: self.game.defaultConfiguration().logoUrl!)
                         .frame(maxHeight: 100)
                         .padding(.horizontal, 16)
                         .padding(.top, 16)
                 } else {
-                    Text(self.game.title)
+                    Text(self.game.defaultConfiguration().title)
                         .font(.title)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 6)
@@ -39,8 +39,8 @@ struct GameInfoView: View {
                 HStack {
                     Spacer()
 
-                    if self.game.releaseYear != nil {
-                        Text(self.game.releaseYear!)
+                    if self.game.defaultConfiguration().releaseYear != nil {
+                        Text(self.game.defaultConfiguration().releaseYear!)
                     }
 
                     if self.game.platform != nil {
@@ -55,34 +55,32 @@ struct GameInfoView: View {
                 .padding(.bottom, 16)
 
                 VStack {
-                    if !self.game.shortcuts.isEmpty {
-                        ForEach(self.game.shortcuts) { shortcut in
-                            Button( action: {
-                                // TODO: shortcut
-                                self.gameManager.launch(game: self.game)
-                            },
-                            label: {
-                                HStack {
-                                    if shortcut.iconUrl != nil {
-                                        UrlImageView(url: shortcut.iconUrl!)
-                                            .frame(width: 32, height: 32)
-                                    }
-
-                                    VStack(alignment: .leading) {
-                                        Text(shortcut.title)
-
-                                        if shortcut.subTitle != nil {
-                                            Text(shortcut.subTitle!)
-                                                .foregroundStyle(.secondary)
-                                                .font(.caption)
-                                        }
-                                    }
-
-                                    Spacer()
+                    ForEach(self.game.configurations.sorted()) { configuration in
+                        Button( action: {
+                            self.gameManager.launch(game: self.game, configuration: configuration)
+                        },
+                        label: {
+                            HStack {
+                                if configuration.iconUrl != nil {
+                                    UrlImageView(url: configuration.iconUrl!)
+                                        .frame(width: 32, height: 32)
                                 }
-                            })
-                        }
+
+                                VStack(alignment: .leading) {
+                                    Text(configuration.title)
+
+                                    if configuration.releaseYear != nil {
+                                        Text(configuration.releaseYear!)
+                                            .foregroundStyle(.secondary)
+                                            .font(.caption)
+                                    }
+                                }
+
+                                Spacer()
+                            }
+                        })
                     }
+
                 }
                 .padding(6)
                 .padding(.bottom, 16)

@@ -18,13 +18,13 @@ struct PlayingGameView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             ZStack(alignment: .topLeading) {
-                if self.game.heroUrl != nil {
-                    UrlImageView(url: self.game.heroUrl!, contentMode: .fill)
+                if self.game.defaultConfiguration().heroUrl != nil {
+                    UrlImageView(url: self.game.defaultConfiguration().heroUrl!, contentMode: .fill)
                         .frame(width: 800, height: 280)
                 }
 
-                if self.game.logoUrl != nil {
-                    UrlImageView(url: self.game.logoUrl!, contentMode: .fit)
+                if self.game.defaultConfiguration().logoUrl != nil {
+                    UrlImageView(url: self.game.defaultConfiguration().logoUrl!, contentMode: .fit)
                         .padding(16)
                         .frame(width: 250, height: 250, alignment: .topLeading)
                         .shadow(color: Color.black, radius: 12)
@@ -43,10 +43,4 @@ struct PlayingGameView: View {
             .padding(16)
         }
     }
-}
-
-#Preview
-{
-    PlayingGameView(game: Game.testGame())
-        .padding(12)
 }

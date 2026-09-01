@@ -35,8 +35,8 @@ struct GameCoverView: View {
 
             VStack(alignment: .leading) {
                 ZStack {
-                    if self.game.coverUrl != nil {
-                        UrlImageView(url: self.game.coverUrl!)
+                    if self.game.defaultConfiguration().coverUrl != nil {
+                        UrlImageView(url: self.game.defaultConfiguration().coverUrl!)
                             .opacity(self.game.foundInScan ? 1.0 : 0.5)
                     } else {
                         Rectangle()
@@ -61,7 +61,7 @@ struct GameCoverView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(self.game.title).lineLimit(2)
+                    Text(self.game.defaultConfiguration().title).lineLimit(2)
 
                     if self.game.platform != nil {
                         HStack(alignment: .center, spacing: 2) {
@@ -75,8 +75,8 @@ struct GameCoverView: View {
 
                             Spacer()
 
-                            if self.game.releaseYear != nil {
-                                Text(self.game.releaseYear!)
+                            if self.game.defaultConfiguration().releaseYear != nil {
+                                Text(self.game.defaultConfiguration().releaseYear!)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                     .lineLimit(1)
@@ -103,7 +103,7 @@ struct GameCoverView: View {
         .contextMenu {
             if self.game.platform != nil {
                 Button {
-                    self.gameManager.launch(game: self.game)
+                    self.gameManager.launch(game: self.game, configuration: self.game.defaultConfiguration())
                 }
                 label: {
                     Label("Play", systemImage: "play")

@@ -19,7 +19,7 @@ class GameManager {
     init() {
     }
 
-    func launch(game: Game) {
+    func launch(game: Game, configuration: Configuration) {
         if game.platform == nil {
             return
         }
@@ -35,8 +35,8 @@ class GameManager {
 
             var args = game.platform!.launchArgs
 
-            if game.customLaunch != nil {
-                args = game.customLaunch!
+            if configuration.launchArgs != nil {
+                args = configuration.launchArgs!
             }
 
             let fileName = (game.path as NSString).lastPathComponent
@@ -45,7 +45,7 @@ class GameManager {
 
             args = args.replacingOccurrences(of: "{path}", with: "\"\(game.path)\"")
             args = args.replacingOccurrences(of: "{file}", with: "\"\(fileName)\"")
-            args = args.replacingOccurrences(of: "{title}", with: "\"\(game.title)\"")
+            args = args.replacingOccurrences(of: "{title}", with: "\"\(configuration.title)\"")
             args = args.replacingOccurrences(of: "{directory}", with: "\"\(directory)\"")
             args = args.replacingOccurrences(of: "{directoryName}", with: "\"\(directoryName)\"")
 

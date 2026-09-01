@@ -44,8 +44,8 @@ class Services {
             let fileManager = FileManager.default
             let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             let directoryURL = appSupportURL.appendingPathComponent("Dust")
-            let fileUrl = directoryURL.appendingPathComponent("Dust.store")
-            let configuration = ModelConfiguration("Dust", schema: schema, url: fileUrl)
+            let fileUrl = directoryURL.appendingPathComponent("Dust2.store")
+            let configuration = ModelConfiguration("Dust2", schema: schema, url: fileUrl)
             self.modelContainer = try ModelContainer(for: schema, configurations: configuration)
         } catch {
             self.modelContainer = nil

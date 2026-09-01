@@ -9,9 +9,7 @@ import SwiftUI
 
 struct ArtworkSelectorView: View {
     @Binding
-    var game: Game
-
-    var shortcutIndex: Int = 0
+    var artUrl: String?
 
     var type: ArtworkType
 
@@ -24,23 +22,14 @@ struct ArtworkSelectorView: View {
     @State
     private var isPopoverPresented: Bool = false
 
-    @State
-    var searchTerm: String = ""
+    @Binding
+    var searchTerm: String
 
     @State
     private var gameSearchResults: [SteamGridDbGame]?
 
     @State
     private var artSearchResults: [SteamGridDbObject]?
-
-    private var artUrl: String? {
-        switch self.type {
-        case ArtworkType.cover: return self.game.coverUrl
-        case ArtworkType.hero: return self.game.heroUrl
-        case ArtworkType.logo: return self.game.logoUrl
-        case ArtworkType.icon: return self.game.shortcuts[self.shortcutIndex].iconUrl
-        }
-    }
 
     private var label: String {
         switch self.type {
@@ -66,10 +55,6 @@ struct ArtworkSelectorView: View {
 
     func searchGameSafe() async {
         do {
-            if self.game.sgdbId == nil {
-                return
-            }
-
             self.gameSearchResults = try await self.sgdbClient.search(term: self.searchTerm)
 
             if self.gameSearchResults != nil && !self.gameSearchResults!.isEmpty {
@@ -89,10 +74,6 @@ struct ArtworkSelectorView: View {
 
     func searchArtSafe() async {
         do {
-            if self.game.sgdbId == nil {
-                return
-            }
-
             switch self.type {
             case .cover:
                 self.artSearchResults = try await self.sgdbClient.getGrids(gameId: self.selectedSgdbId)
@@ -164,7 +145,7 @@ struct ArtworkSelectorView: View {
                                 ForEach(self.artSearchResults!, id: \.self) { result in
                                     Button(action:
                                     {
-                                        self.setArtwork(value: result.thumb)
+                                        self.artUrl = result.thumb
                                         self.isPopoverPresented = false
                                     }, label: {
                                         UrlImageView(url: result.thumb)
@@ -189,22 +170,8 @@ struct ArtworkSelectorView: View {
             }
             .frame(width: 666, height: 350)
             .onAppear {
-                self.searchTerm = self.game.title
                 self.beginGameSearch()
             }
-        }
-    }
-
-    func setArtwork(value: String) {
-        switch self.type {
-        case .cover:
-            self.game.coverUrl = value
-        case .hero:
-            self.game.heroUrl = value
-        case .logo:
-            self.game.logoUrl = value
-        case .icon:
-            self.game.shortcuts[self.shortcutIndex].iconUrl = value
         }
     }
 }
