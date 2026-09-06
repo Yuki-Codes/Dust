@@ -86,6 +86,15 @@ class GameManager {
         Services.Container.mainContext.delete(game)
     }
 
+    func addGame() {
+        let config: Configuration = Configuration()
+        config.title = "New Game"
+        let game: Game = Game(path: "", defaultConfiguration: config)
+        Services.Container.mainContext.insert(game)
+        self.editingGame = game
+        self.isEditingGame = true
+    }
+
     private func beginWatching(game: Game, process: Process) {
         _ = Task {
             return await self.watch(game: game, process: process)

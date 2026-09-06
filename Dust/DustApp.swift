@@ -22,6 +22,7 @@ struct DustApp: App {
         .commands {
             CommandMenu("Games") {
                 Button("Scan for games", systemImage: "plus.viewfinder", action: Services.Scanner.beginScan)
+                Button("Add game...", systemImage: "plus", action: Services.GameManager.addGame)
             }
         }
 

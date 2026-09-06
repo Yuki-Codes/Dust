@@ -26,9 +26,14 @@ struct IconView: View {
             switch phase {
             case .success(let image):
                 if self.colorScheme == ColorScheme.dark {
-                    image.resizable().colorInvert()
+                    image
+                        .resizable()
+                        .colorInvert()
+                        .scaledToFit()
                 } else {
-                    image.resizable()
+                    image
+                        .resizable()
+                        .scaledToFit()
                 }
 
             default:

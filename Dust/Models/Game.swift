@@ -37,6 +37,9 @@ class Game: Identifiable, Hashable, Comparable {
     var foundInScan: Bool = false
     var configurations: [Configuration] = []
 
+    var modsDirectory: String?
+    var configurationPath: String?
+
     init(path: String, defaultConfiguration: Configuration) {
         self.path = path
 

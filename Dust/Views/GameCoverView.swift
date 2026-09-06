@@ -66,7 +66,7 @@ struct GameCoverView: View {
                     if self.game.platform != nil {
                         HStack(alignment: .center, spacing: 2) {
                             IconView(iconName: self.game.platform!.iconName)
-                                .frame(width: 10, height: 10)
+                                .frame(width: 12, height: 12)
 
                             Text(self.game.platform!.name)
                                 .font(.caption)
@@ -101,32 +101,50 @@ struct GameCoverView: View {
         }
 
         .contextMenu {
-            if self.game.platform != nil {
-                Button {
-                    self.gameManager.launch(game: self.game, configuration: self.game.defaultConfiguration())
-                }
-                label: {
-                    Label("Play", systemImage: "play")
-                }
 
-                Divider()
-
-                Button {
-                    self.gameManager.edit(game: self.game)
-                }
-                label: {
-                    Label("Edit", systemImage: "rectangle.and.pencil.and.ellipsis")
-                }
-
-                Button {
-                    self.gameManager.openDir(game: self.game)
-                }
-                label: {
-                    Label("Open Location", systemImage: "folder")
-                }
-
-                Divider()
+            Button {
+                self.gameManager.launch(game: self.game, configuration: self.game.defaultConfiguration())
             }
+            label: {
+                Label("Play", systemImage: "play")
+            }
+
+            Divider()
+
+            Button {
+                self.gameManager.edit(game: self.game)
+            }
+            label: {
+                Label("Edit", systemImage: "rectangle.and.pencil.and.ellipsis")
+            }
+
+            Button {
+                self.gameManager.openDir(game: self.game)
+            }
+            label: {
+                Label("Open Location", systemImage: "folder")
+            }
+
+            if self.game.modsDirectory != nil {
+                Button {
+                    _ = Shell.execute("open \(self.game.modsDirectory!)")
+                }
+                label: {
+                    Label("Open Mods Location", systemImage: "folder")
+                }
+            }
+
+            if self.game.configurationPath != nil {
+                Button {
+                    _ = Shell.execute("open \(self.game.configurationPath!)")
+                }
+                label: {
+                    Label("Open Configuration", systemImage: "folder")
+                }
+            }
+
+            Divider()
+
 
             if !self.game.hidden {
                 Button {

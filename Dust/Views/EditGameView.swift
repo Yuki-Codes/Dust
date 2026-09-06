@@ -22,6 +22,9 @@ struct EditGameView: View {
     @State
     var searchTerm: String = ""
 
+    @Query
+    var platforms: [Platform]
+
     init(game: Game) {
         self.game = game
         self.selectedConfiguration = game.defaultConfiguration()
@@ -31,33 +34,6 @@ struct EditGameView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                /*Text("Library")
-                HStack {
-                    Form {
-                        TextField("Title", text: self.$game.title)
-                        TextField("Sort Title", text: self.$game.sortTitle)
-                        TextField("Release Year", text: self.$game.releaseYear ?? "")
-                        Spacer()
-                    }
-
-                    ArtworkSelectorView(
-                        artUrl: self.$game.coverUrl,
-                        type: .cover,
-                        searchTerm: self.$searchTerm)
-                        .frame(width: 120)
-
-                    ArtworkSelectorView(
-                        artUrl: self.$game.logoUrl,
-                        type: .logo,
-                        searchTerm: self.$searchTerm)
-                        .frame(width: 150)
-                }
-                .frame(height: 150)
-
-                Divider()
-
-                Text("Launch Configurations")*/
-
                 HStack {
                     GroupBox {
                         List(self.game.configurations.sorted(), id: \.position, selection: self.$selectedConfigurationId) { configuration in
@@ -134,34 +110,43 @@ struct EditGameView: View {
                     .scrollDisabled(true)
                     .frame(width: 200)
 
-                    Form {
-                        // Toggle("Hidden from library", isOn: $game.hidden).toggleStyle(.checkbox);
+                    EditGameConfigurationView(
+                        configuration: self.$selectedConfiguration)
+                }
 
-                        EditGameConfigurationView(
-                            configuration: self.$selectedConfiguration)
-
-                        HStack {
-                            Text("Path: ")
-                                .font(.caption)
-                            Text(self.game.path)
-                                .font(.caption)
+                Form {
+                    Picker("Platform", selection: self.$game.platform) {
+                        ForEach(self.platforms) { platform in
+                            Text(platform.name)
+                                .tag(platform)
                         }
+                    }
+                    .buttonSizing(.flexible)
 
-                        if self.game.platform?.type == .emulator {
-                            HStack {
-                                Text("Executable: ")
-                                    .font(.caption)
-
-                                Text(self.game.platform?.executablePath ?? "")
-                                    .font(.caption)
+                    HStack {
+                        TextField("Path", text: self.$game.path)
+                        Button("...") {
+                            let panel = NSOpenPanel()
+                            panel.allowsMultipleSelection = false
+                            panel.canChooseDirectories = false
+                            if panel.runModal() == .OK {
+                                self.game.path = panel.url?.path() ?? ""
+                                self.game.foundInScan = true
                             }
                         }
                     }
+
+                    /*if self.game.platform?.type == .emulator {
+                        TextField("Executable", text: self.game.platform?.executablePath ?? "")
+                    }*/
+
+                    TextField("Mods Directory", text: self.$game.modsDirectory ?? "")
+                    TextField("Configuration File", text: self.$game.configurationPath ?? "")
                 }
             }
         }
 
-        .frame(width: 600, height: 350)
+        .frame(width: 600, height: 450)
     }
 
     func addConfiguration() {

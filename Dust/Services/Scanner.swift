@@ -46,14 +46,18 @@ class Scanner {
             try await self.scan(platform: platform)
         }
 
+        for game in games where !game.foundInScan {
+            self.status = game.defaultConfiguration().title
+
+            game.foundInScan = FileManager.default.fileExists(atPath: game.path)
+        }
+
         self.status = "Done"
         try await Task.sleep(for: .seconds(1))
     }
 
     private func scan(platform: Platform) async throws {
         self.status = platform.name
-
-        print(platform.name)
 
         for directory in platform.directories {
             let url: URL = URL(filePath: directory)
