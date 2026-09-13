@@ -85,7 +85,7 @@ struct EditGameConfigurationView: View {
 
                 // Text("Pos: \(self.configuration.position)")
 
-                if self.configuration.position == -1 {
+                if self.configuration.position == 0 {
                     Toggle("Include in launch list", isOn: self.$configuration.canLaunch)
                         .toggleStyle(.checkbox)
                 }
@@ -100,7 +100,7 @@ struct EditGameConfigurationView: View {
 
                 HStack {
                     // Only the default config gets a cover.
-                    if self.configuration.position == -1 {
+                    if self.configuration.position == 0 {
                         ArtworkSelectorView(
                             artUrl: self.$configuration.coverUrl,
                             type: .cover,

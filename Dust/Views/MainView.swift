@@ -27,12 +27,18 @@ struct MainView: View {
 
     @State
     private var includeHidden: Bool = false
+    
+    @State
+    private var platformId: UUID? = nil
+    
+    @Query
+    private var platforms: [Platform]
 
     var body: some View {
         @Bindable
         var bindableGameManager = self.gameManager
 
-        GamesView(searchTerm: self.search, includeHidden: self.includeHidden)
+        GamesView(searchTerm: self.search, includeHidden: self.includeHidden, platform: self.platformId)
             .ignoresSafeArea(edges: .top)
 
         .overlay(alignment: .bottomTrailing) {
@@ -76,8 +82,15 @@ struct MainView: View {
         }
 
         .toolbar {
-             Menu {
+            Menu {
                 Toggle("Show hidden games", isOn: $includeHidden)
+
+                Picker("Platform", selection: self.$platformId) {
+                    ForEach(self.platforms) { platform in
+                        Text(platform.name)
+                            .tag(platform.id)
+                    }
+                }
             } label: {
                 Label("Filters", systemImage: "line.3.horizontal.decrease")
             }

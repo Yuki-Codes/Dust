@@ -69,18 +69,19 @@ struct GamesView: View {
         }
     }
 
-    init(searchTerm: String, includeHidden: Bool) {
+    init(searchTerm: String, includeHidden: Bool, platform: UUID?) {
         self._games = Query(
-            filter: GamesView.gamesPredicate(searchText: searchTerm, includeHidden: includeHidden),
+            filter: GamesView.gamesPredicate(searchText: searchTerm, includeHidden: includeHidden, platform: platform),
             // sort: \.defaultConfiguration().title
         )
     }
 
-    static func gamesPredicate(searchText: String, includeHidden: Bool) -> Predicate<Game> {
+    static func gamesPredicate(searchText: String, includeHidden: Bool, platform: UUID?) -> Predicate<Game> {
         #Predicate<Game> { game in
             (!game.hidden || includeHidden)
-            // &&
+            &&
             // (searchText == "" || game.defaultConfiguration().title.localizedStandardContains(searchText))
+            (platform == nil || game.platform?.id == platform)
         }
     }
 }

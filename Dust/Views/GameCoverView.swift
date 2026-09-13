@@ -145,7 +145,6 @@ struct GameCoverView: View {
 
             Divider()
 
-
             if !self.game.hidden {
                 Button {
                     self.gameManager.hide(game: self.game)
@@ -162,13 +161,11 @@ struct GameCoverView: View {
                 }
             }
 
-            if !self.game.foundInScan {
-                Button {
-                    self.gameManager.delete(game: self.game)
-                }
-                label: {
-                    Label("Delete", systemImage: "trash")
-                }
+            Button {
+                self.gameManager.delete(game: self.game)
+            }
+            label: {
+                Label("Delete", systemImage: "trash")
             }
         }
     }

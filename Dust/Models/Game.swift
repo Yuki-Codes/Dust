@@ -63,13 +63,13 @@ class Game: Identifiable, Hashable, Comparable {
     }
 
     func defaultConfiguration() -> Configuration {
-        for config in self.configurations where config.position == -1 {
+        for config in self.configurations where config.position == 0 {
             return config
         }
 
         let config: Configuration = Configuration()
         config.title = "Default"
-        config.position = -1
+        config.position = 0
         self.configurations.append(config)
         return config
     }
