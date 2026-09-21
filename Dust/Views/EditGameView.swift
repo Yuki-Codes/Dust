@@ -103,11 +103,11 @@ struct EditGameView: View {
                         })
                     }
                     .formStyle(.grouped)
-                    .scrollDisabled(true)
                     .frame(width: 200)
 
                     EditGameConfigurationView(
-                        configuration: self.$selectedConfiguration)
+                        configuration: self.$selectedConfiguration,
+                        game: self.game)
                 }
 
                 Form {
@@ -138,6 +138,7 @@ struct EditGameView: View {
 
                     TextField("Mods Directory", text: self.$game.modsDirectory ?? "")
                     TextField("Configuration File", text: self.$game.configurationPath ?? "")
+                    TextField("Arguments", text: self.$game.launchArgs ?? "")
                 }
             }
         }

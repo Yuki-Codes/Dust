@@ -33,19 +33,21 @@ class GameManager {
             executable = game.platform!.executablePath
         }
 
-        var args = game.platform!.launchArgs
-
-        if configuration.launchArgs != nil {
-            args = configuration.launchArgs!
-        }
+        var args = game.platform?.launchArgs ?? ""
+        args += " " + (game.launchArgs ?? "")
+        args += " " + (configuration.launchArgs ?? "")
 
         let fileName = (game.path as NSString).lastPathComponent
         let directory = game.path.replacingOccurrences(of: fileName, with: "")
         let directoryName = (directory as NSString).lastPathComponent
 
+        var safeTitle = configuration.title
+        safeTitle = safeTitle.replacingOccurrences(of: " ", with: "_")
+
         args = args.replacingOccurrences(of: "{path}", with: "\"\(game.path)\"")
         args = args.replacingOccurrences(of: "{file}", with: "\"\(fileName)\"")
         args = args.replacingOccurrences(of: "{title}", with: "\"\(configuration.title)\"")
+        args = args.replacingOccurrences(of: "{title_safe}", with: "\"\(safeTitle)\"")
         args = args.replacingOccurrences(of: "{directory}", with: "\"\(directory)\"")
         args = args.replacingOccurrences(of: "{directoryName}", with: "\"\(directoryName)\"")
 

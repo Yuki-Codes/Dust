@@ -32,62 +32,65 @@ struct GameInfoView: View {
                         .padding(.horizontal, 16)
                         .padding(.top, )
                 }
+                
+                ScrollView {
+                    VStack {
+                    
+                        ForEach(self.game.configurations.sorted()) { configuration in
 
-                VStack {
-                    ForEach(self.game.configurations.sorted()) { configuration in
+                            if configuration.canLaunch {
+                                Button( action: {
+                                    self.gameManager.launch(game: self.game, configuration: configuration)
+                                },
+                                label: {
+                                    HStack {
 
-                        if configuration.canLaunch {
-                            Button( action: {
-                                self.gameManager.launch(game: self.game, configuration: configuration)
-                            },
-                            label: {
-                                HStack {
+                                        ZStack {
+                                            if configuration.iconUrl != nil {
+                                                UrlImageView(url: configuration.iconUrl!)
+                                                    .frame(width: 48, height: 48)
+                                                    .background(.thinMaterial)
+                                                    .cornerRadius(6)
+                                            }
 
-                                    ZStack {
-                                        if configuration.iconUrl != nil {
-                                            UrlImageView(url: configuration.iconUrl!)
-                                                .frame(width: 48, height: 48)
-                                                .background(.thinMaterial)
-                                                .cornerRadius(6)
+                                            Image(systemName: "play.fill")
+                                                .resizable()
+                                                .frame(width: 28, height: 28)
+                                                .opacity(self.hover == configuration ? 0.9 : 0.0)
+                                                .shadow(color: Color.black, radius: 12)
+                                                .animation(.easeInOut(duration: 0.25), value: self.hover)
                                         }
 
-                                        Image(systemName: "play.fill")
-                                            .resizable()
-                                            .frame(width: 28, height: 28)
-                                            .opacity(self.hover == configuration ? 0.9 : 0.0)
-                                            .shadow(color: Color.black, radius: 12)
-                                            .animation(.easeInOut(duration: 0.25), value: self.hover)
-                                    }
-
-                                    VStack(alignment: .leading) {
-                                        Text(configuration.title)
-                                            .lineLimit(1)
-                                            .frame(width: 200, alignment: .leading)
-
-                                        if configuration.releaseYear != nil {
-                                            Text(configuration.releaseYear!)
-                                                .foregroundStyle(.secondary)
-                                                .font(.caption)
+                                        VStack(alignment: .leading) {
+                                            Text(configuration.title)
                                                 .lineLimit(1)
-                                        }
-                                    }
+                                                .frame(width: 200, alignment: .leading)
 
-                                    Spacer()
-                                }
-                            })
-                            .onHover { over in
-                                if over {
-                                    self.hover = configuration
-                                } else if self.hover == configuration {
-                                    self.hover = nil
+                                            if configuration.releaseYear != nil {
+                                                Text(configuration.releaseYear!)
+                                                    .foregroundStyle(.secondary)
+                                                    .font(.caption)
+                                                    .lineLimit(1)
+                                            }
+                                        }
+
+                                        Spacer()
+                                    }
+                                })
+                                .onHover { over in
+                                    if over {
+                                        self.hover = configuration
+                                    } else if self.hover == configuration {
+                                        self.hover = nil
+                                    }
                                 }
                             }
                         }
                     }
-
+                    .padding(16)
+                    .padding(.bottom, 2)
                 }
-                .padding(16)
-                .padding(.bottom, 2)
+                .frame(maxHeight: 500)
             }
         }
         .frame(width: 300)

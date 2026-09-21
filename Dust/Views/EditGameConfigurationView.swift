@@ -16,6 +16,8 @@ struct EditGameConfigurationView: View {
 
     @Binding
     var configuration: Configuration
+    
+    var game: Game
 
     @State
     var searchTerm: String = ""
@@ -126,7 +128,7 @@ struct EditGameConfigurationView: View {
                 }
 
                 if self.configuration.canLaunch {
-                    TextField("Arguments", text: self.$configuration.launchArgs ?? "")
+                    TextField("Additional Arguments", text: self.$configuration.launchArgs ?? "")
                 }
             }
 
