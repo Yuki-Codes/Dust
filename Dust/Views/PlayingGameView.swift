@@ -11,7 +11,7 @@ import SwiftUI
 
 struct PlayingGameView: View {
     var game: Game
-    var config:Configuration
+    var config: Configuration
 
     var heroLoaded: Bool = false
     var logoLoaded: Bool = false
@@ -22,6 +22,9 @@ struct PlayingGameView: View {
                 if self.config.heroUrl != nil {
                     UrlImageView(url: self.config.heroUrl!, contentMode: .fill)
                         .frame(width: 800, height: 280)
+                } else if self.game.defaultConfiguration().heroUrl != nil {
+                    UrlImageView(url: self.game.defaultConfiguration().heroUrl!, contentMode: .fill)
+                        .frame(width: 800, height: 280)
                 }
 
                 if self.config.logoUrl != nil {
@@ -30,6 +33,11 @@ struct PlayingGameView: View {
                         .frame(width: 250, height: 250, alignment: .topLeading)
                         .shadow(color: Color.black, radius: 12)
                 } else {
+                    Text(self.config.title)
+                        .font(.title)
+                        .padding(16)
+                        .frame(width: 250, height: 250, alignment: .topLeading)
+                        .shadow(color: Color.black, radius: 12)
                 }
             }
 

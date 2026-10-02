@@ -16,7 +16,7 @@ struct EditGameConfigurationView: View {
 
     @Binding
     var configuration: Configuration
-    
+
     var game: Game
 
     @State
@@ -119,12 +119,11 @@ struct EditGameConfigurationView: View {
                         type: .hero,
                         searchTerm: self.$searchTerm)
 
-                    if self.configuration.canLaunch {
-                        ArtworkSelectorView(
-                            artUrl: self.$configuration.iconUrl,
-                            type: .icon,
-                            searchTerm: self.$searchTerm)
-                    }
+                    ArtworkSelectorView(
+                        artUrl: self.$configuration.iconUrl,
+                        type: .icon,
+                        searchTerm: self.$searchTerm)
+
                 }
 
                 if self.configuration.canLaunch {

@@ -21,17 +21,34 @@ struct GameInfoView: View {
     var body: some View {
         ZStack {
             VStack {
-                if self.game.defaultConfiguration().logoUrl != nil {
-                    UrlImageView(url: self.game.defaultConfiguration().logoUrl!)
-                        .padding(.horizontal, 16)
-                        .padding(.top, 16)
-                        .frame(minHeight: 64, maxHeight: 128)
-                } else {
-                    Text(self.game.defaultConfiguration().title)
-                        .font(.title)
-                        .padding(.horizontal, 16)
-                        .padding(.top, )
+                ZStack {
+                    if hover == nil {
+                        UrlImageView(url: self.game.defaultConfiguration().logoUrl ?? "")
+                            .padding(.horizontal, 16)
+                            .padding(.top, 16)
+                            .frame(minHeight: 64, maxHeight: 128)
+
+                        if self.game.defaultConfiguration().logoUrl == nil {
+                            Text(self.game.defaultConfiguration().title)
+                                .font(.title)
+                                .padding(.horizontal, 16)
+                                .padding(.top, 16)
+                        }
+                    } else {
+                        UrlImageView(url: hover!.logoUrl ?? "")
+                            .padding(.horizontal, 16)
+                            .padding(.top, 16)
+                            .frame(minHeight: 64, maxHeight: 128)
+
+                        if hover?.logoUrl == nil {
+                            Text(hover!.title)
+                                .font(.title)
+                                .padding(.horizontal, 16)
+                                .padding(.top, 16)
+                        }
+                    }
                 }
+                .frame(height: 128)
 
                 ScrollView {
 
@@ -103,6 +120,11 @@ struct GameInfoView: View {
                                             ZStack {
                                                 if configuration.iconUrl != nil {
                                                     UrlImageView(url: configuration.iconUrl!)
+                                                        .frame(width: 48, height: 48)
+                                                        .background(.thinMaterial)
+                                                        .cornerRadius(6)
+                                                } else {
+                                                    UrlImageView(url: self.game.defaultConfiguration().iconUrl!)
                                                         .frame(width: 48, height: 48)
                                                         .background(.thinMaterial)
                                                         .cornerRadius(6)

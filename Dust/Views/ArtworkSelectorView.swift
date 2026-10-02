@@ -167,6 +167,16 @@ struct ArtworkSelectorView: View {
                     .font(Font.caption)
                     .opacity(0.5)
                     .padding(4)
+
+                HStack {
+
+                    TextField("URL", text: self.$artUrl ?? "")
+
+                    Button("Clear") {
+                        self.artUrl = nil
+                    }
+                }
+                .padding(16)
             }
             .frame(width: 666, height: 350)
             .onAppear {
