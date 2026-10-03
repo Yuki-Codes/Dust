@@ -22,6 +22,9 @@ struct SettingsView: View {
     @Query
     var platforms: [Platform]
 
+    @Query
+    var games: [Game]
+
     @AppStorage("sgdbApiKey")
     var sgdbApiKey: String = ""
 
@@ -135,6 +138,10 @@ struct SettingsView: View {
     func removePlatform() {
         if self.selectedPlatform == nil {
             return
+        }
+
+        for game in self.games where game.platform == self.selectedPlatform {
+            self.modelContext.delete(game)
         }
 
         self.modelContext.delete(self.selectedPlatform!)
