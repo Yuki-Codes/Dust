@@ -41,7 +41,13 @@ struct GameCoverView: View {
                     } else {
                         Rectangle()
                             .opacity(0)
-                            .background(.thinMaterial)
+                            .background(.gray.gradient)
+
+                        Text(self.game.defaultConfiguration().title)
+                            .lineLimit(5)
+                            .font(.title)
+                            .shadow(color: Color.black, radius: 4)
+                            .multilineTextAlignment(.center)
                     }
 
                     IconView(iconName: "material-symbols-light:disc-full")
