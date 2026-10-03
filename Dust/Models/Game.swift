@@ -43,7 +43,7 @@ class Game: Identifiable, Hashable, Comparable {
     init(path: String, defaultConfiguration: Configuration) {
         self.path = path
 
-        defaultConfiguration.position = -1
+        defaultConfiguration.position = 0
         self.configurations.append(defaultConfiguration)
     }
 
