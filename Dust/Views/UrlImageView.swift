@@ -17,7 +17,7 @@ struct UrlImageView: View {
     var loaded: Bool = false
 
     var body: some View {
-        CachedAsyncImage(url: URL(string: self.url)) { phase in
+        CachedAsyncImage(url: URL(string: self.url), urlCache: .imageCache) { phase in
             switch phase {
             case .success(let image):
                 image.resizable()

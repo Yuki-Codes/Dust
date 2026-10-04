@@ -21,7 +21,7 @@ struct GameCoverView: View {
     var hover: Bool = false
 
     var coverHeight: Float {
-        return (self.coverWidth / 9) * 14
+        return self.coverWidth * 1.5
     }
 
     @Environment(GameManager.self)
@@ -35,8 +35,12 @@ struct GameCoverView: View {
 
             VStack(alignment: .leading) {
                 ZStack {
+                    Rectangle()
+                        .opacity(0)
+                        .background(.black)
+
                     if self.game.defaultConfiguration().coverUrl != nil {
-                        UrlImageView(url: self.game.defaultConfiguration().coverUrl!)
+                        UrlImageView(url: self.game.defaultConfiguration().coverUrl!, contentMode: .fill)
                             .opacity(self.game.foundInScan ? 1.0 : 0.5)
                     } else {
                         Rectangle()
@@ -55,8 +59,9 @@ struct GameCoverView: View {
                         .shadow(color: Color.black, radius: 12)
                         .opacity(self.game.foundInScan ? 0.0 : 1.0)
                 }
-                .cornerRadius(6)
                 .frame(width: CGFloat(self.coverWidth), height: CGFloat(self.coverHeight))
+                .clipped()
+                .cornerRadius(6)
                 .shadow(radius: 6)
                 .shadow(color: .black.opacity(self.hover || self.popupOpen ? 0.5 : 0), radius: 12)
                 .scaleEffect(self.hover || self.popupOpen ? 1.05 : 1)

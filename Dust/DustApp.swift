@@ -34,6 +34,10 @@ struct DustApp: App {
     }
 }
 
+extension URLCache {
+    static let imageCache = URLCache(memoryCapacity: 512_000_000, diskCapacity: 10_000_000_000)
+}
+
 func ?? <T>(lhs: Binding<T?>, rhs: T) -> Binding<T> {
     Binding(
         get: { lhs.wrappedValue ?? rhs },
