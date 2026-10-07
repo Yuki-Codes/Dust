@@ -109,11 +109,6 @@ struct SettingsView: View {
                 Spacer()
                     .frame(height: 32)
 
-                Text("Retro Achievements").font(.title3).frame(alignment: .leading)
-                Text("Enter a Retro Achievements API Key to fetch achievement progress for your games.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
                 Spacer()
                     .frame(height: 32)
             }

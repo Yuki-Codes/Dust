@@ -18,7 +18,6 @@ class Platform: Identifiable, Hashable {
     var directories: [String] = []
     var searchPattern: String = "[^.]+\\.app"
     var launchArgs: String = "{path}"
-    var retroArchCore: String?
 
     enum PlatformType: Codable, CaseIterable, Identifiable, CustomStringConvertible {
         case applications

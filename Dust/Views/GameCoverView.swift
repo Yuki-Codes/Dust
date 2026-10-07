@@ -136,24 +136,6 @@ struct GameCoverView: View {
                 Label("Open Location", systemImage: "folder")
             }
 
-            if self.game.modsDirectory != nil {
-                Button {
-                    _ = Shell.execute("open \(self.game.modsDirectory!)")
-                }
-                label: {
-                    Label("Open Mods Location", systemImage: "folder")
-                }
-            }
-
-            if self.game.configurationPath != nil {
-                Button {
-                    _ = Shell.execute("open \(self.game.configurationPath!)")
-                }
-                label: {
-                    Label("Open Configuration", systemImage: "folder")
-                }
-            }
-
             Divider()
 
             if !self.game.hidden {

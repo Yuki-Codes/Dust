@@ -136,8 +136,6 @@ struct EditGameView: View {
                         TextField("Executable", text: self.game.platform?.executablePath ?? "")
                     }*/
 
-                    TextField("Mods Directory", text: self.$game.modsDirectory ?? "")
-                    TextField("Configuration File", text: self.$game.configurationPath ?? "")
                     TextField("Arguments", text: self.$game.launchArgs ?? "")
                 }
             }

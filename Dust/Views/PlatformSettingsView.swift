@@ -50,25 +50,6 @@ struct PlatformSettingsView: View {
                 }
 
                 HStack {
-                    TextField("Retro Arch Core", text: self.$platform.retroArchCore ?? "")
-                    Button("...") {
-                        let appSupportURL =
-                            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-                        let directoryURL =
-                            appSupportURL.appendingPathComponent("RetroArch").appendingPathComponent("cores")
-
-                        let panel = NSOpenPanel()
-                        panel.directoryURL = directoryURL
-                        panel.allowsMultipleSelection = false
-                        panel.canChooseDirectories = false
-                        panel.canChooseFiles = true
-                        if panel.runModal() == .OK && panel.url != nil {
-                            self.platform.retroArchCore = panel.url!.lastPathComponent
-                        }
-                    }
-                }
-
-                HStack {
                     TextField("Arguments", text: self.$platform.launchArgs)
                     Image(systemName: "questionmark.circle.fill")
                     .popover(isPresented: self.$argsHelpPopupOpen) {
@@ -79,7 +60,6 @@ struct PlatformSettingsView: View {
                             Text("{path} will be replaced with the absolute path to the file.")
                             Text("{file} will be replaced with the name of the file, including extension.")
                             Text("{title} will be replaced with the game title.")
-                            Text("{core} will be replaced with the retro arch core file.")
                         }.padding(12)
                     }
                     .onHover { over in

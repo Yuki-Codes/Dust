@@ -51,10 +51,6 @@ class GameManager {
         args = args.replacingOccurrences(of: "{directory}", with: "\"\(directory)\"")
         args = args.replacingOccurrences(of: "{directoryName}", with: "\"\(directoryName)\"")
 
-        if game.platform!.retroArchCore != nil && game.platform!.retroArchCore != "" {
-            args = args.replacingOccurrences(of: "{core}", with: "\"\(game.platform!.retroArchCore!)\"")
-        }
-
         var proc: Process? = Shell.execute("open -n -W \"\(executable)\" --args \(args)")
 
         if proc != nil {
