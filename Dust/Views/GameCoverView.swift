@@ -53,11 +53,6 @@ struct GameCoverView: View {
                             .shadow(color: Color.black, radius: 4)
                             .multilineTextAlignment(.center)
                     }
-
-                    IconView(iconName: "material-symbols-light:disc-full")
-                        .frame(width: 48, height: 48)
-                        .shadow(color: Color.black, radius: 12)
-                        .opacity(self.game.foundInScan ? 0.0 : 1.0)
                 }
                 .frame(width: CGFloat(self.coverWidth), height: CGFloat(self.coverHeight))
                 .clipped()
@@ -73,28 +68,6 @@ struct GameCoverView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(self.game.defaultConfiguration().title).lineLimit(2)
-
-                    if self.game.platform != nil {
-                        HStack(alignment: .center, spacing: 2) {
-                            IconView(iconName: self.game.platform!.iconName)
-                                .frame(width: 12, height: 12)
-
-                            Text(self.game.platform!.name)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-
-                            Spacer()
-
-                            if self.game.defaultConfiguration().releaseYear != nil {
-                                Text(self.game.defaultConfiguration().releaseYear!)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(1)
-                            }
-                        }
-                    }
-
                     Spacer()
                 }
             }

@@ -14,7 +14,6 @@ class Services {
     private let scanner = Dust.Scanner()
     private let gameManager = Dust.GameManager()
     private let sgdbClient: SteamGridDbClient = Dust.SteamGridDbClient()
-    private let iconifyClient: IconifyClient = Dust.IconifyClient()
     private let modelContainer: ModelContainer?
 
     public static var Scanner: Dust.Scanner {
@@ -27,10 +26,6 @@ class Services {
 
     public static var SgdbClient: Dust.SteamGridDbClient {
         return Services.instance.sgdbClient
-    }
-
-    public static var IconifyClient: Dust.IconifyClient {
-        return Services.instance.iconifyClient
     }
 
     public static var Container: ModelContainer {
