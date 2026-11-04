@@ -40,7 +40,12 @@ struct SettingsView: View {
                 HStack {
                     GroupBox {
                         List(self.platforms, selection: self.$platformId) { platform in
-                            Text(platform.name)
+                            HStack {
+                                IconView(iconName: platform.iconName)
+                                    .frame(width: 14, height: 14)
+
+                                Text(platform.name)
+                            }
                         }
                         .padding(.bottom, 24)
                         .padding(.top, -4)

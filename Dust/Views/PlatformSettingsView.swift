@@ -26,6 +26,8 @@ struct PlatformSettingsView: View {
         Form {
             TextField("Name", text: self.$platform.name)
 
+            IconSelectorView(iconName: self.$platform.iconName, fallback: self.platform.name)
+
             Picker("Type", selection: self.$platform.type) {
                 ForEach(Platform.PlatformType.allCases) { type in
                     Text(String(describing: type))

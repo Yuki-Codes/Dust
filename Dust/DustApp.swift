@@ -18,6 +18,7 @@ struct DustApp: App {
         .environment(Services.Scanner)
         .environment(Services.GameManager)
         .environment(Services.SgdbClient)
+        .environment(Services.IconifyClient)
         .commands {
             CommandMenu("Games") {
                 Button("Scan for games", systemImage: "plus.viewfinder", action: Services.Scanner.beginScan)
@@ -28,6 +29,7 @@ struct DustApp: App {
         Settings {
             SettingsView()
                 .modelContainer(Services.Container)
+                .environment(Services.IconifyClient)
         }
     }
 }
