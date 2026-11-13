@@ -28,12 +28,13 @@ class GameManager {
         playingConfig = configuration
 
         var executable: String = game.path
+        var args: String = ""
 
         if game.platform!.type == .emulator {
             executable = game.platform!.executablePath
+            args += game.platform?.launchArgs ?? ""
         }
 
-        var args = game.platform?.launchArgs ?? ""
         args += " " + (game.launchArgs ?? "")
         args += " " + (configuration.launchArgs ?? "")
 
