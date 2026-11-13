@@ -72,14 +72,10 @@ struct GameCoverView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(self.game.defaultConfiguration().title)
-                        .font(.caption)
-                        .lineLimit(2)
-
                     if self.game.platform != nil {
                         HStack(alignment: .center, spacing: 2) {
                             IconView(iconName: self.game.platform!.iconName)
-                                .frame(width: 12, height: 12)
+                                .frame(width: 11, height: 11)
 
                             Text(self.game.platform!.name)
                                 .font(.caption)
@@ -96,6 +92,9 @@ struct GameCoverView: View {
                             }
                         }
                     }
+
+                    Text(self.game.defaultConfiguration().title)
+                        .lineLimit(2)
 
                     Spacer()
                 }

@@ -25,7 +25,7 @@ struct GamesView: View {
     @State
     var hover: Game?
 
-    var coverWidth: Float = 128
+    var coverWidth: Float = 150
 
     var body: some View {
         ZStack {
