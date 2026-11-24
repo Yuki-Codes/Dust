@@ -20,6 +20,7 @@ class Configuration: Identifiable, Comparable {
     var sortTitle: String = ""
     var position: Int = 0
     var canLaunch: Bool = true
+    var modPaths: [String] = []
 
     init() {
     }
@@ -37,6 +38,8 @@ class Game: Identifiable, Hashable, Comparable {
     var foundInScan: Bool = false
     var configurations: [Configuration] = []
     var launchArgs: String?
+    var modsDirectory: String = ""
+    var modsLaunchArgsFormat: String?
 
     init(path: String, defaultConfiguration: Configuration) {
         self.path = path

@@ -34,6 +34,66 @@ struct EditGameView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
+                Form {
+                    Picker("Platform", selection: self.$game.platform) {
+                        ForEach(self.platforms) { platform in
+                            Text(platform.name)
+                                .tag(platform)
+                        }
+                    }
+                    .buttonSizing(.flexible)
+
+                    HStack {
+                        TextField("Path", text: self.$game.path)
+                        Button("...") {
+                            let panel = NSOpenPanel()
+                            panel.allowsMultipleSelection = false
+                            panel.canChooseDirectories = false
+                            if panel.runModal() == .OK {
+                                self.game.path = panel.url?.path() ?? ""
+                                self.game.foundInScan = true
+                            }
+                        }
+                    }
+
+                    HStack {
+                        TextField("Mods Directory", text: self.$game.modsDirectory)
+                        Button("...") {
+                            let panel = NSOpenPanel()
+                            panel.allowsMultipleSelection = false
+                            panel.canChooseDirectories = false
+                            if panel.runModal() == .OK {
+                                self.game.modsDirectory = panel.url?.path() ?? ""
+                            }
+                        }
+                    }
+
+                    if (self.game.platform != nil && self.game.platform!.modsDirectory != "") {
+                        Text("platform mods: \(self.game.platform!.modsDirectory)")
+                            .font(Font.caption)
+                    }
+
+                    if (self.game.modsDirectory != ""
+                        || (self.game.platform != nil && self.game.platform!.modsDirectory != "")) {
+                        TextField("Mods Args Format", text: self.$game.modsLaunchArgsFormat ?? "")
+                        if (self.game.platform != nil && self.game.platform!.modsLaunchArgsFormat != "") {
+                            Text("platform Format: \(self.game.platform!.modsLaunchArgsFormat)")
+                                .font(Font.caption)
+                        }
+                    }
+
+                    /*if self.game.platform?.type == .emulator {
+                        TextField("Executable", text: self.game.platform?.executablePath ?? "")
+                    }*/
+
+                    TextField("Arguments", text: self.$game.launchArgs ?? "")
+                    if (self.game.platform != nil && self.game.platform!.launchArgs != "") {
+                        Text("platform arguments: \(self.game.platform!.launchArgs)")
+                            .font(Font.caption)
+                            .frame(maxWidth: 400)
+                    }
+                }
+
                 HStack {
                     GroupBox {
                         List(self.game.configurations.sorted(), id: \.position, selection: self.$selectedConfigurationId) { configuration in
@@ -109,39 +169,10 @@ struct EditGameView: View {
                         configuration: self.$selectedConfiguration,
                         game: self.game)
                 }
-
-                Form {
-                    Picker("Platform", selection: self.$game.platform) {
-                        ForEach(self.platforms) { platform in
-                            Text(platform.name)
-                                .tag(platform)
-                        }
-                    }
-                    .buttonSizing(.flexible)
-
-                    HStack {
-                        TextField("Path", text: self.$game.path)
-                        Button("...") {
-                            let panel = NSOpenPanel()
-                            panel.allowsMultipleSelection = false
-                            panel.canChooseDirectories = false
-                            if panel.runModal() == .OK {
-                                self.game.path = panel.url?.path() ?? ""
-                                self.game.foundInScan = true
-                            }
-                        }
-                    }
-
-                    /*if self.game.platform?.type == .emulator {
-                        TextField("Executable", text: self.game.platform?.executablePath ?? "")
-                    }*/
-
-                    TextField("Arguments", text: self.$game.launchArgs ?? "")
-                }
             }
         }
 
-        .frame(width: 600, height: 450)
+        .frame(width: 600, height: 500)
     }
 
     func addConfiguration() {

@@ -107,6 +107,25 @@ struct PlatformSettingsView: View {
             }
 
             TextField("Search Pattern", text: self.$platform.searchPattern)
+
+            HStack {
+                TextField("Mods Directory", text: self.$platform.modsDirectory)
+
+                Button("..."){
+                    let panel = NSOpenPanel()
+                    panel.allowsMultipleSelection = false
+                    panel.canChooseDirectories = true
+                    panel.canChooseFiles = false
+                    if panel.runModal() == .OK && panel.url?.path() != nil {
+                        self.platform.modsDirectory = panel.url!.path();
+                    }
+                }
+            }
+
+            if (self.platform.modsDirectory != "")
+            {
+                TextField("Mods Argument Format", text: self.$platform.modsLaunchArgsFormat)
+            }
         }
     }
 

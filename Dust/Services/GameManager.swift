@@ -28,10 +28,23 @@ class GameManager {
         playingConfig = configuration
 
         var executable: String = game.path
-        var args: String = ""
+        var args: String = getArgs(game: game, configuration: configuration)
 
         if game.platform!.type == .emulator {
             executable = game.platform!.executablePath
+        }
+
+        var proc: Process? = Shell.execute("open -n -W \"\(executable)\" --args \(args)")
+
+        if proc != nil {
+            self.beginWatching(game: game, process: proc!)
+        }
+    }
+
+    func getArgs(game: Game, configuration: Configuration) -> String {
+        var args: String = ""
+
+        if game.platform!.type == .emulator {
             args += game.platform?.launchArgs ?? ""
         }
 
@@ -52,11 +65,9 @@ class GameManager {
         args = args.replacingOccurrences(of: "{directory}", with: "\"\(directory)\"")
         args = args.replacingOccurrences(of: "{directoryName}", with: "\"\(directoryName)\"")
 
-        var proc: Process? = Shell.execute("open -n -W \"\(executable)\" --args \(args)")
+        args = args + getModsArguments(game: game, configuration: configuration)
 
-        if proc != nil {
-            self.beginWatching(game: game, process: proc!)
-        }
+        return args
     }
 
     func edit(game: Game) {
@@ -92,6 +103,82 @@ class GameManager {
         Services.Container.mainContext.insert(game)
         self.editingGame = game
         self.isEditingGame = true
+    }
+
+    func getAvailableMods(game: Game) -> [String] {
+        var mods: [String] = []
+
+        do
+        {
+            if (game.platform != nil && game.platform!.modsDirectory != "") {
+                let files: [String] = try FileManager.default.contentsOfDirectory(atPath: game.platform!.modsDirectory)
+                for file in files {
+                    var path: String = game.platform!.modsDirectory
+                    if !path.hasSuffix("/") && !file.hasPrefix("/") {
+                        path = path.appending("/")
+                    }
+
+                    path = path.appending(file)
+                    mods.append(path);
+                }
+            }
+        } catch {
+            print(error)
+        }
+
+        do
+        {
+            if (game.modsDirectory != "") {
+                let files: [String] = try FileManager.default.contentsOfDirectory(atPath: game.modsDirectory)
+                for file in files {
+                    var path: String = game.modsDirectory
+                    if !path.hasSuffix("/") && !file.hasPrefix("/") {
+                        path = path.appending("/")
+                    }
+
+                    path = path.appending(file)
+                    mods.append(path);
+                }
+            }
+        } catch {
+            print(error)
+        }
+
+        return mods.sorted()
+    }
+
+    func getModsArguments(game: Game, configuration: Configuration) -> String {
+
+        var args :String = ""
+        var format :String = ""
+
+        if (game.modsLaunchArgsFormat != nil && game.modsLaunchArgsFormat != "") {
+            format = game.modsLaunchArgsFormat!
+        } else if (game.platform != nil && game.platform!.modsLaunchArgsFormat != "") {
+            format = game.platform!.modsLaunchArgsFormat
+        }
+
+        if (format == "") {
+            return ""
+        }
+
+        for modPath in configuration.modPaths {
+            var str: String = format
+
+            let modFile = (modPath as NSString).lastPathComponent
+            let modTitle = (modFile as NSString).deletingPathExtension
+            var safeTitle = configuration.title
+            safeTitle = safeTitle.replacingOccurrences(of: " ", with: "_")
+
+            str = str.replacingOccurrences(of: "{path}", with: "\"\(modPath)\"")
+            str = str.replacingOccurrences(of: "{file}", with: "\"\(modFile)\"")
+            str = str.replacingOccurrences(of: "{title}", with: "\"\(modTitle)\"")
+            str = str.replacingOccurrences(of: "{title_safe}", with: "\"\(safeTitle)\"")
+
+            args = args + " " + str
+        }
+
+        return args
     }
 
     private func beginWatching(game: Game, process: Process) {

@@ -134,7 +134,27 @@ struct GameCoverView: View {
                 self.gameManager.openDir(game: self.game)
             }
             label: {
-                Label("Open Location", systemImage: "folder")
+                Label("Reveal", systemImage: "folder")
+            }
+
+            if (self.game.platform != nil && self.game.platform!.modsDirectory != "")
+            {
+                Button {
+                    _ = Shell.execute("open \(self.game.platform!.modsDirectory)")
+                }
+                label: {
+                    Label("Reveal Platform Mods", systemImage: "folder")
+                }
+            }
+
+            if (self.game.modsDirectory != "")
+            {
+                Button {
+                    _ = Shell.execute("open \(self.game.modsDirectory)")
+                }
+                label: {
+                    Label("Reveal Platform Mods", systemImage: "folder")
+                }
             }
 
             Divider()

@@ -18,6 +18,8 @@ class Platform: Identifiable, Hashable {
     var directories: [String] = []
     var searchPattern: String = "[^.]+\\.app"
     var launchArgs: String = "{path}"
+    var modsDirectory: String = ""
+    var modsLaunchArgsFormat: String = "-file {path}"
 
     enum PlatformType: Codable, CaseIterable, Identifiable, CustomStringConvertible {
         case applications
